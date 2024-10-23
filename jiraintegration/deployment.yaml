@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jira  # Replace with your desired namespace name
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jira-alert
+  namespace: jira
+spec:
+  selector:
+    matchLabels:
+      app: jiralert
+  template:
+    metadata:
+      labels:
+        app: jiralert
+    spec:
+      containers:
+      - name: jiralert
+        image: quay.io/app-sre/jiralert:latest
+        imagePullPolicy: Always
+        args:
+        - "--config=/jiralert-config/jiralert.yml"
+        - "--log.level=debug"
+        - "--listen-address=:9097"
+        resources:
+          limits:
+            cpu: 250m
+            memory: 250Mi
+          requests:
+            cpu: 250m
+            memory: 250Mi
+        readinessProbe:
+          tcpSocket:
+            port: 9097
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          timeoutSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 9097
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          timeoutSeconds: 5
+        ports:
+        - containerPort: 9091
+          name: metrics
+        env:
+        - name: API_URL
+          valueFrom:
+            secretKeyRef:
+              name: jira-alert-secrets
+              key: API_URL
+        - name: JIRA_USER
+          valueFrom:
+            secretKeyRef:
+              name: jira-alert-secrets
+              key: JIRA_USER
+        - name: JIRA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jira-alert-secrets
+              key: JIRA_PASSWORD
+        volumeMounts:
+        - mountPath: /jiralert-config
+          name: jiralert-config
+          readOnly: true
+        - name: secrets-store
+          mountPath: /mnt/secrets-store
+          readOnly: true
+      volumes:
+      - name: jiralert-config
+        configMap:
+          name: jiralert-config
+      - name: secrets-store
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "jira-alert-secrets"
+      tolerations:
+      - key: "CriticalAddonsOnly"              
+        operator: "Equal"        
+        value: "true"        
+        effect: "NoSchedule"

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jiralert
+  namespace: jira
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true" # This annotation makes the load balancer internal
+spec:
+  selector:
+    app: jiralert
+  ports:
+  - port: 9097
+    targetPort: 9097
+    name: metrics
+  type: LoadBalancer

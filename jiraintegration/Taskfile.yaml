@@ -1,0 +1,33 @@
+version: '3'
+
+# Prerequisities
+# 1. Create secrets in the Azure Key Vault with the below keys:
+# a. jiraapiurl
+# b. jirauser
+# c. jirapassword
+# 2. Find the managed identity created for the cluster in resource group (MC_*) and assign Secret Get,List permissions on the Key Vault. 
+# 3. Check the networking section in the Key Vault and make sure the Kuberenetes subnet is allowed to connect to the Keyvault
+# 4. Install the Secret Store CSI driver in the cluster
+# helm repo add secrets-store-csi-driver https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
+# helm install csi-secrets-store secrets-store-csi-driver/secrets-store-csi-driver --namespace kube-system --set syncSecret.enabled=true
+# Install the Azure Key Vault Provier
+# helm repo add csi-secrets-store-provider-azure https://azure.github.io/secrets-store-csi-driver-provider-azure/charts
+# helm repo update
+# helm install csi-secrets-store-provider-azure/csi-secrets-store-provider-azure --generate-name -n kube-system
+# To verify, use the below command and confirm that secretproviderclasses.secrets-store.csi.x-k8s.io and secretproviderclasspodstatuses.secrets-store.csi.x-k8s.io are visible in the output
+# kubectl get crd
+# 5. Run the command provided in the task below
+# 6. For the Grafana instance to be able to communicate with the extenal-ip of the jira service (running on K8), create a private link service using the load balancer IP of the jira service.
+# Then, create a private endpoint for the Grafana instance and link it to the private link service. Once the private endpoint is created, approve the connection from the private link service.
+
+
+tasks:
+  deploy:
+    description: Deploy the Jira Grafana Integration Container
+    cmds:
+      - echo "Deploying the Jira Grafana Integration Container"
+      - kubectl apply -f jira-secrets.yaml
+      - kubectl apply -f jira-configmap.yaml
+      - kubectl apply -f jira-deployment.yaml
+      - kubectl apply -f jira-service.yaml
+
