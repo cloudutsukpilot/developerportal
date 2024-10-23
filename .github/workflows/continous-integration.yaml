@@ -20,7 +20,7 @@ jobs:
   #non-prod
   Invoke-Terraform-CD:
     name: non-production
-    needs: Invoke-Terraform-CI:
+    needs: Invoke-Terraform-CI
     uses: cloudutsuk/github-workflows/.github/workflows/terraform-CD.yaml@main
     with:
       working_environment: cloudutsuk
