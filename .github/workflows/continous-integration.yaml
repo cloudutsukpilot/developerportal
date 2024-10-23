@@ -27,8 +27,8 @@ jobs:
       working_directory:
       providers: azurerm
     secrets:
-      arm_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-      arm_subscription_id: ${{ secrets.AZURE_ADMIN_SUB_ID }}
-      arm_client_id: ${{ vars.AZURE_SB_DEVOPS_IAC_CLIENT_ID }}
-      arm_client_secret: ${{ secrets.AZURE_SB_DEVOPS_IAC_CLIENT_SECRET }}
-      repo_read_token: ${{ secrets.REPO_READ_TOKEN }}
+      arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}
+      arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      arm_client_id: ${{ vars.ARM_CLIENT_ID }}
+      arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}
+      repo_read_token: ${{ secrets.GIT_REPO_READ_TOKEN }}
