@@ -12,23 +12,23 @@ on:
 
 jobs:
   Invoke-Terraform-CI:
-    uses: cloudutsuk/github-workflows/.github/workflows/terraform-CI.yaml@main
+    uses: cloudutsukpilot/github-workflows/.github/workflows/terraform-CI.yaml@main
     secrets: inherit
     with:
       providers: azurerm
   
-  # #non-prod
-  # Invoke-Terraform-CD:
-  #   name: non-production
-  #   needs: Invoke-Terraform-CI
-  #   uses: cloudutsuk/github-workflows/.github/workflows/terraform-CD.yaml@main
-  #   with:
-  #     working_environment: cloudutsuk
-  #     working_directory:
-  #     providers: azurerm
-  #   secrets:
-  #     arm_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-  #     arm_subscription_id: ${{ secrets.AZURE_ADMIN_SUB_ID }}
-  #     arm_client_id: ${{ vars.AZURE_SB_DEVOPS_IAC_CLIENT_ID }}
-  #     arm_client_secret: ${{ secrets.AZURE_SB_DEVOPS_IAC_CLIENT_SECRET }}
-  #     repo_read_token: ${{ secrets.REPO_READ_TOKEN }}
+  # Non-Prod
+  Invoke-Terraform-CD:
+    name: non-production
+    needs: Invoke-Terraform-CI
+    uses: cloudutsukpilot/github-workflows/.github/workflows/terraform-CD.yaml@main
+    with:
+      working_environment: cloudutsuk
+      working_directory:
+      providers: azurerm
+    secrets:
+      arm_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+      arm_subscription_id: ${{ secrets.AZURE_ADMIN_SUB_ID }}
+      arm_client_id: ${{ vars.AZURE_SB_DEVOPS_IAC_CLIENT_ID }}
+      arm_client_secret: ${{ secrets.AZURE_SB_DEVOPS_IAC_CLIENT_SECRET }}
+      repo_read_token: ${{ secrets.REPO_READ_TOKEN }}
