@@ -1,0 +1,137 @@
+name: 'Deploy Azure Infrastructure'
+
+on:
+  push:
+    branches: [ main ]
+    paths: .github/workflows/infrastructure_deployment.yml
+  pull_request:
+    branches: [ main ]
+    paths: .github/workflows/infrastructure_deployment.yml
+  # Allows you to run this workflow manually from the Actions tab 
+  workflow_dispatch:
+    inputs:
+      tfaction: 
+        description: 'Terraform Action to Perform'
+        default: 'plan'
+  
+env:
+  STORAGE_ACCOUNT_NAME: cloudutsuktfstatestgacc
+  RESOURCE_GROUP_NAME: terraform-backend
+  RESOURCE_GROUP_LOCATION: centralindia
+  CONTAINER_NAME: developer-portal
+  TERRAGRUNT_VERSION: 0.63.6
+  TERRAFORM_VERSION: v1.9.8
+  WORKING_DIRECTORY: environments
+  
+jobs:
+  deploy-azure-infra:
+    name: Deploy Azure Infra
+    runs-on: ubuntu-latest
+    environment: production
+    # needs: [scan-terraform-config]
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Repository Checkout
+      uses: actions/checkout@v2
+                
+    - name: Azure Login with Service Principal
+      uses: Azure/login@v1.4.6
+      with:
+        # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create Azure Resource for Terraform Backend
+      uses: Azure/cli@v1.0.6
+      with:
+        # Azure CLI version to be used to execute the script. If not provided, latest version is used
+        # azcliversion: 2.34.1 # optional, default is agentazcliversion
+        inlineScript: |
+          az version
+
+          # Create resource group
+          az group create --name $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION
+          
+          # Create storage account
+          az storage account create --name $STORAGE_ACCOUNT_NAME \
+             --resource-group $RESOURCE_GROUP_NAME \
+             --sku Standard_LRS \
+             --encryption-services blob
+          
+          # Create blob container
+          az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
+
+    # Install the latest version of Terraform CLI
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: $TERRAFORM_VERSION
+
+    # Install Terragrunt
+    - name: Install Terragrunt
+      run: |
+        TG_VERSION=$TERRAGRUNT_VERSION # Specify your desired Terragrunt version
+        wget https://github.com/gruntwork-io/terragrunt/releases/download/v$TG_VERSION/terragrunt_linux_amd64
+        chmod +x terragrunt_linux_amd64
+        sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+        
+    # Verify installation
+    - name: Verify Terragrunt Installation
+      run: |
+        terraform --version
+        terragrunt --version
+
+    # - name: Terragrunt Init
+    #   id: init
+    #   env:
+    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    #   run: |
+    #     terragrunt run-all init
+  
+    # # # Checks that all Terraform configuration files adhere to a canonical format
+    # # - name: Terraform Format
+    # #   id: format
+    # #   run: terraform fmt -check
+    # #   continue-on-error: true
+
+    # - name: Terraform Plan
+    #   id: plan
+    #   env:
+    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    # # To run terraform plan only when there is a pull request or push to the repo
+    # #   if: github.event_name == 'pull_request' # 'push' # 
+    #   if: github.event.inputs.tfaction != 'destroy'
+    #   run: |
+    #     terragrunt run-all plan -no-color 
+        
+    # # On push to main, build or change infrastructure according to Terraform configuration files
+    # - name: Terraform Apply
+    #   # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    #   if: github.event.inputs.tfaction != 'destroy'
+    #   env:
+    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    #   run: terraform run-all apply -auto-approve
+
+    # - name: Terraform Destroy
+    #   if: github.event.inputs.tfaction == 'destroy'
+    #   env:
+    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    #   run: terraform run-all destroy -auto-approve

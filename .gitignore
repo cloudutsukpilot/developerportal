@@ -34,6 +34,9 @@ override.tf.json
 # Local environment variables
 .env
 
+# Local Secrets
+.secrets
+
 # Lock File
 **/.terraform.lock.hcl
 
