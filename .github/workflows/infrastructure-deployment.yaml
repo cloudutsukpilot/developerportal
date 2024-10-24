@@ -47,6 +47,9 @@ jobs:
         # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: Az CLI version
+      run: az --version
+
     - name: Create Azure Resource for Terraform Backend
       uses: Azure/cli@v1.0.6
       with:
