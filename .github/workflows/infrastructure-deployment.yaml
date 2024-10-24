@@ -42,7 +42,8 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Az CLI version
-      run: az --version
+      run: |
+        az --version
                 
     - name: Azure Login with Service Principal
       uses: Azure/login@v1.4.6
@@ -51,24 +52,30 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Create Azure Resource for Terraform Backend
-      uses: Azure/cli@v1.0.6
-      with:
-        # Azure CLI version to be used to execute the script. If not provided, latest version is used
-        # azcliversion: 2.34.1 # optional, default is agentazcliversion
-        inlineScript: |
-          az version
-
-          # Create resource group
+      run: |
+        # Create resource group
+        if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]]; then
           az group create --name $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION
-          
-          # Create storage account
+        else
+          echo "Resource group $RESOURCE_GROUP_NAME already exists."
+        fi
+        
+        # Create storage account
+        if [[ $(az storage account check-name --name $STORAGE_ACCOUNT_NAME --query 'nameAvailable') == true ]]; then
           az storage account create --name $STORAGE_ACCOUNT_NAME \
-             --resource-group $RESOURCE_GROUP_NAME \
-             --sku Standard_LRS \
-             --encryption-services blob
-          
-          # Create blob container
-          az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
+              --resource-group $RESOURCE_GROUP_NAME \
+              --sku Standard_LRS \
+              --encryption-services blob
+        else
+          echo "Storage account $STORAGE_ACCOUNT_NAME already exists."
+        fi
+        
+        # Create blob container
+        if [[ $(az storage container exists --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login --query 'exists') == false ]]; then
+          az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login
+        else
+          echo "Blob container $CONTAINER_NAME already exists."
+        fi
 
     # Install the latest version of Terraform CLI
     - name: Install Terraform
