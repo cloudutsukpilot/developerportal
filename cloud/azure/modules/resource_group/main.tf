@@ -1,8 +1,7 @@
 resource "azurerm_resource_group" "rg" {
   for_each = var.resource_groups
 
-  name     = each.key
-  location = each.value
-
-  tags = lookup(var.tags, each.key, {})  # Lookup tags for the specific resource group
+  name     = each.value.name
+  location = each.value.location
+  tags     = merge(each.value.tags, var.common_tags)
 }

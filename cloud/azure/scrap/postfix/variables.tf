@@ -1,5 +1,6 @@
 variable "global" {}
-variable "extra_tags" {}
+variable "extra_tags" {
+}
 
 variable "rg" {}
 

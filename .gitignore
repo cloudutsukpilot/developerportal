@@ -76,3 +76,7 @@ log/*
 env_variables
 
 *.pyc
+
+
+## Temp
+**/scrap

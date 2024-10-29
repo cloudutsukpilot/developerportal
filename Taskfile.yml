@@ -14,3 +14,45 @@ tasks:
       - git commit -m "{{.CLI_ARGS}}"
       - git push    
     
+  run-pipeline:
+    desc: Run the pipeline
+    cmds:
+      - act -j deploy-azure-infra
+
+  init-all:
+    desc: Initialize the project
+    cmds:
+      - terragrunt run-all init --reconfigure
+
+  plan-all:
+    desc: Plan the infrastructure
+    cmds:
+      - |
+        terragrunt run-all init --reconfigure
+        terragrunt run-all plan
+
+  apply-all:
+    desc: Apply the infrastructure
+    cmds:
+      - |
+        terragrunt run-all init --reconfigure
+        terragrunt run-all apply -auto-approve --terragrunt-non-interactive
+
+  destroy-all:
+    desc: Destroy the infrastructure
+    cmds:
+      - |
+        terragrunt run-all init --reconfigure
+        terragrunt run-all destroy -auto-approve --terragrunt-non-interactive 
+  
+  validate-all:
+    desc: Validate the infrastructure
+    cmds:
+      - |
+        terragrunt run-all init --reconfigure
+        terragrunt run-all validate
+
+  output-all:
+    desc: Output the infrastructure
+    cmds:
+      - terragrunt run-all output

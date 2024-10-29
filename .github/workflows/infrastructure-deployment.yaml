@@ -19,7 +19,7 @@ env:
   RESOURCE_GROUP_NAME: terraform-backend
   RESOURCE_GROUP_LOCATION: centralindia
   CONTAINER_NAME: developer-portal
-  TERRAGRUNT_VERSION: 0.63.6
+  TERRAGRUNT_VERSION: 0.68.4
   TERRAFORM_VERSION: v1.9.8
   WORKING_DIRECTORY: environments
   
@@ -79,9 +79,9 @@ jobs:
 
     # Install the latest version of Terraform CLI
     - name: Install Terraform
-      uses: hashicorp/setup-terraform@v1
+      uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: $TERRAFORM_VERSION
+        terraform_version: $TERAFORM_VERSION
 
     # Install Terragrunt
     - name: Install Terragrunt
@@ -97,15 +97,15 @@ jobs:
         terraform --version
         terragrunt --version
 
-    # - name: Terragrunt Init
-    #   id: init
-    #   env:
-    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    #   run: |
-    #     terragrunt run-all init
+    - name: Terragrunt Init
+      id: init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: |
+        terragrunt run-all init
   
     # # # Checks that all Terraform configuration files adhere to a canonical format
     # # - name: Terraform Format

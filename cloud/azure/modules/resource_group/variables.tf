@@ -1,9 +1,14 @@
 variable "resource_groups" {
-  description = "Map of resource group names and their locations."
-  type        = map(string)
+  description = "Map of resource groups to create, with details like name, location, and tags."
+  type = map(object({
+    name     = string
+    location = string
+    tags     = map(string)
+  }))
 }
 
-variable "tags" {
-  description = "Map of tags for resource groups."
-  type        = map(map(string))  # Map of maps for tags
+variable "common_tags" {
+  description = "Common tags to apply to all resource groups"
+  type        = map(string)
+  default     = {}  # You can provide default tags if needed
 }

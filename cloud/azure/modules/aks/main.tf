@@ -1,8 +1,10 @@
-resource "azurerm_kubernetes_cluster" "main" {
-  for_each                            = { for clusters in local.clusters_list : clusters.name => clusters }
-  location                            = each.value.location
+resource "azurerm_kubernetes_cluster" "aks_clusters" {
+
+  for_each                            = var.aks_clusters
+
   name                                = each.value.name
-  resource_group_name                 = each.value.rg
+  location                            = each.value.location
+  resource_group_name                 = each.value.resource_group_name
   azure_policy_enabled                = each.value.azure_policy_enabled
   dns_prefix                          = each.value.dns_prefix
   kubernetes_version                  = each.value.kubernetes_version
@@ -13,21 +15,25 @@ resource "azurerm_kubernetes_cluster" "main" {
   private_cluster_public_fqdn_enabled = each.value.private_cluster_public_fqdn_enabled
   role_based_access_control_enabled   = each.value.role_based_access_control_enabled
   sku_tier                            = each.value.sku_tier
-  #tags                                = each.value.tags
+  tags                                = each.value.tags
   workload_identity_enabled = each.value.workload_identity_enabled
   #key_vault_key_id                    = data.azurerm_key_vault.vault.id
+
   default_node_pool {
-    name                = each.value.default_node_pool.name
-    vm_size             = each.value.default_node_pool.vm_size
-    node_count          = each.value.default_node_pool.node_count
-    min_count           = each.value.default_node_pool.min_count
-    max_count           = each.value.default_node_pool.max_count
-    enable_auto_scaling = each.value.default_node_pool.enable_auto_scaling
-    orchestrator_version = each.value.default_node_pool.orchestrator_version
+    name                = each.value.default_node_pool_name
+    vm_size             = each.value.default_node_pool_vm_size
+    node_count          = each.value.default_node_pool_node_count
+    
+    auto_scaling_enabled = each.value.default_node_pool_enable_auto_scaling
+    type                 = each.value.default_node_pool_type
+    min_count            = each.value.default_node_pool_min_count
+    max_count            = each.value.default_node_pool_max_count
+    
+    orchestrator_version = each.value.default_node_pool_orchestrator_version
     #vnet_subnet_id      = length(local.node_pools) > 0 ? data.azurerm_subnet.node_pool_subnet[each.key].id : data.azurerm_subnet.cluster_subnet[each.key].id
-    vnet_subnet_id = data.azurerm_subnet.cluster_subnet["${each.value.vnet}-${each.value.subnet}"].id
+    vnet_subnet_id = each.value.default_node_pool_vnet_subnet_id
     upgrade_settings {
-      max_surge = each.value.default_node_pool.max_surge
+      max_surge = each.value.default_node_pool_upgrade_settings_max_surge
     }
   }
   identity {
@@ -36,46 +42,16 @@ resource "azurerm_kubernetes_cluster" "main" {
 
   }
 
-  dynamic "azure_active_directory_role_based_access_control" {
-    for_each = each.value.role_based_access_control_enabled && each.value.rbac_aad_managed ? ["rbac"] : []
-
-    content {
-      admin_group_object_ids = each.value.rbac_aad_admin_group_object_ids
-      azure_rbac_enabled     = each.value.rbac_aad_azure_rbac_enabled
-      managed                = true
-      # tenant_id              = each.value.rbac_aad_tenant_id
-    }
-  }
-
-
-
   network_profile {
-    network_plugin     = each.value.network_plugin
-    dns_service_ip     = each.value.net_profile_dns_service_ip
-    load_balancer_sku  = each.value.load_balancer_sku
-    network_policy     = each.value.network_policy
-    outbound_type      = each.value.net_profile_outbound_type
-    pod_cidr           = each.value.net_profile_pod_cidr
-    service_cidr       = each.value.net_profile_service_cidr
-
-    dynamic "load_balancer_profile" {
-      for_each = each.value.load_balancer_profile_enabled && each.value.load_balancer_sku == "standard" ? ["load_balancer_profile"] : []
-
-      content {
-        idle_timeout_in_minutes     = each.value.load_balancer_profile_idle_timeout_in_minutes
-        managed_outbound_ip_count   = each.value.load_balancer_profile_managed_outbound_ip_count
-        managed_outbound_ipv6_count = each.value.load_balancer_profile_managed_outbound_ipv6_count
-        outbound_ip_address_ids     = each.value.load_balancer_profile_outbound_ip_address_ids
-        outbound_ip_prefix_ids      = each.value.load_balancer_profile_outbound_ip_prefix_ids
-        outbound_ports_allocated    = each.value.load_balancer_profile_outbound_ports_allocated
-      }
-    }
+    network_plugin     = each.value.network_profile_network_plugin
+    dns_service_ip     = each.value.network_profile_dns_service_ip
+    load_balancer_sku  = each.value.network_profile_load_balancer_sku
+    network_policy     = each.value.network_profile_network_policy
+    outbound_type      = each.value.network_profile_outbound_type
+    pod_cidr           = each.value.network_profile_pod_cidr
+    service_cidr       = each.value.network_profile_service_cidr
 
   }
-
-
-
-  tags = local.tags
 }
 
 # # ACR Role assignment
