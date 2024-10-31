@@ -96,6 +96,17 @@ jobs:
         tg_dir: ${{ env.WORKING_DIRECTORY }}
         tg_command: 'hclfmt --terragrunt-check --terragrunt-diff'
     
+    - name: Check Azure CLI Version
+      run: az --version
+
+    - name: Terragrunt Validate
+      uses: gruntwork-io/terragrunt-action@v2
+      with:
+        tf_version: ${{ env.TERRAFORM_VERSION }}
+        tg_version: ${{ env.TERRAGRUNT_VERSION }}
+        tg_dir: ${{ env.WORKING_DIRECTORY }}
+        tg_command: 'validate'
+      
     - name: Terragrunt Init
       uses: gruntwork-io/terragrunt-action@v2
       with:
