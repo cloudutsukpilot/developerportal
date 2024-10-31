@@ -106,6 +106,12 @@ jobs:
         tg_version: ${{ env.TERRAGRUNT_VERSION }}
         tg_dir: ${{ env.WORKING_DIRECTORY }}
         tg_command: 'validate'
+      env:
+        ARM_CLIENT_ID: ${{ env.ARM_CLIENT_ID  }}
+        ARM_CLIENT_SECRET: ${{ env.ARM_CLIENT_SECRET  }}
+        ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ env.ARM_SUBSCRIPTION_ID }}
+
       
     - name: Terragrunt Init
       uses: gruntwork-io/terragrunt-action@v2
@@ -114,6 +120,11 @@ jobs:
         tg_version: ${{ env.TERRAGRUNT_VERSION }}
         tg_dir: ${{ env.WORKING_DIRECTORY }}
         tg_command: 'init'
+      env:
+        ARM_CLIENT_ID: ${{ env.ARM_CLIENT_ID  }}
+        ARM_CLIENT_SECRET: ${{ env.ARM_CLIENT_SECRET  }}
+        ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ env.ARM_SUBSCRIPTION_ID }}
 
     - name: Terragrunt Plan
       uses: gruntwork-io/terragrunt-action@v2
