@@ -9,6 +9,7 @@ tasks:
   git-push:
     desc: Git Add, Commit and Push
     cmds:
+      - terragrunt hclfmt
       - git status
       - git add .
       - git commit -m "{{.CLI_ARGS}}"
