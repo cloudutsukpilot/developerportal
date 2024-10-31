@@ -22,12 +22,16 @@ env:
   TERRAGRUNT_VERSION: 0.68.4
   TERRAFORM_VERSION: v1.9.8
   WORKING_DIRECTORY: environments
+  AZURE_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  AZURE_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  AZURE_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   
 jobs:
-  deploy-azure-infra:
-    name: Deploy Azure Infra
+  initialize-azure-infra:
+    name: Initialize Azure Infrastructure
     runs-on: ubuntu-latest
-    environment: production
+    environment: development
     # needs: [scan-terraform-config]
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -41,21 +45,21 @@ jobs:
     - name: Repository Checkout
       uses: actions/checkout@v2
 
-    - name: Az CLI version
-      run: |
-        az --version
-                
-    - name: Azure Login with Service Principal
-      uses: Azure/login@v1.4.6
+    - name: Azure CLI Login
+      uses: azure/login@v2
       with:
-        # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: '{"clientId":"${{ env.AZURE_CLIENT_ID }}","clientSecret":"${{ env.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ env.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ env.AZURE_TENANT_ID }}"}'
 
-    - name: Create Azure Resource for Terraform Backend
+    - name: Create Azure Storage Account for Terraform Backend
       run: |
+        az account set --subscription "$ARM_SUBSCRIPTION_ID"
+        subscriptionName=$(az account show --query name -o tsv)
+        echo "Subscription is set to: $subscriptionName"
         # Create resource group
         if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]]; then
-          az group create --name $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION
+          az group create --name $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION \
+          --only-show-errors
+          echo "Resource group $RESOURCE_GROUP_NAME created."
         else
           echo "Resource group $RESOURCE_GROUP_NAME already exists."
         fi
@@ -65,83 +69,53 @@ jobs:
           az storage account create --name $STORAGE_ACCOUNT_NAME \
               --resource-group $RESOURCE_GROUP_NAME \
               --sku Standard_LRS \
-              --encryption-services blob
+              --encryption-services blob \
+              --only-show-errors
+          echo "Storage account $STORAGE_ACCOUNT_NAME created."
         else
           echo "Storage account $STORAGE_ACCOUNT_NAME already exists."
         fi
         
         # Create blob container
         if [[ $(az storage container exists --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login --query 'exists') == false ]]; then
-          az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login
+          az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login \
+          --only-show-errors
+          echo "Blob container $CONTAINER_NAME created."
         else
           echo "Blob container $CONTAINER_NAME already exists."
         fi
-
-    # Install the latest version of Terraform CLI
-    - name: Install Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: $TERAFORM_VERSION
-
-    # Install Terragrunt
-    - name: Install Terragrunt
-      run: |
-        TG_VERSION=$TERRAGRUNT_VERSION # Specify your desired Terragrunt version
-        wget https://github.com/gruntwork-io/terragrunt/releases/download/v$TG_VERSION/terragrunt_linux_amd64
-        chmod +x terragrunt_linux_amd64
-        sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
-        
-    # Verify installation
-    - name: Verify Terragrunt Installation
-      run: |
-        terraform --version
-        terragrunt --version
-
-    - name: Terragrunt Init
-      id: init
       env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run: |
-        terragrunt run-all init
-  
-    # # # Checks that all Terraform configuration files adhere to a canonical format
-    # # - name: Terraform Format
-    # #   id: format
-    # #   run: terraform fmt -check
-    # #   continue-on-error: true
+        ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
-    # - name: Terraform Plan
-    #   id: plan
-    #   env:
-    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    # # To run terraform plan only when there is a pull request or push to the repo
-    # #   if: github.event_name == 'pull_request' # 'push' # 
-    #   if: github.event.inputs.tfaction != 'destroy'
-    #   run: |
-    #     terragrunt run-all plan -no-color 
-        
-    # # On push to main, build or change infrastructure according to Terraform configuration files
-    # - name: Terraform Apply
-    #   # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    #   if: github.event.inputs.tfaction != 'destroy'
-    #   env:
-    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    #   run: terraform run-all apply -auto-approve
 
-    # - name: Terraform Destroy
-    #   if: github.event.inputs.tfaction == 'destroy'
-    #   env:
-    #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-    #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-    #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    #   run: terraform run-all destroy -auto-approve
+    - name: Terragrunt hclfmt
+      uses: gruntwork-io/terragrunt-action@v2
+      with:
+        tf_version: ${{ env.TERRAFORM_VERSION }}
+        tg_version: ${{ env.TERRAGRUNT_VERSION }}
+        tg_dir: ${{ env.WORKING_DIRECTORY }}
+        tg_command: 'hclfmt --terragrunt-check --terragrunt-diff'
+    
+    - name: Terragrunt Init
+      uses: gruntwork-io/terragrunt-action@v2
+      with:
+        tf_version: ${{ env.TERRAFORM_VERSION }}
+        tg_version: ${{ env.TERRAGRUNT_VERSION }}
+        tg_dir: ${{ env.WORKING_DIRECTORY }}
+        tg_command: 'init'
+
+    - name: Terragrunt Plan
+      uses: gruntwork-io/terragrunt-action@v2
+      with:
+        tf_version: ${{ env.TERRAFORM_VERSION }}
+        tg_version: ${{ env.TERRAGRUNT_VERSION }}
+        tg_dir: ${{ env.WORKING_DIRECTORY }}
+        tg_command: 'plan'
+
+    - name: Terragrunt Apply
+      uses: gruntwork-io/terragrunt-action@v2
+      with:
+        tf_version: ${{ env.TERRAFORM_VERSION }}
+        tg_version: ${{ env.TERRAGRUNT_VERSION }}
+        tg_dir: ${{ env.WORKING_DIRECTORY }}
+        tg_command: 'apply'

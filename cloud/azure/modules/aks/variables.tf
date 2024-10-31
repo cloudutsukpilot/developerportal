@@ -30,13 +30,15 @@ variable "aks_clusters" {
 
     identity_type                       = string
 
-    network_profile_network_plugin = string
-    network_profile_dns_service_ip = string
-    network_profile_load_balancer_sku = string
     network_profile_network_policy = string
+    network_profile_network_plugin = string
+    network_profile_network_plugin_mode = string
+    network_profile_network_data_plane = string
+    network_profile_load_balancer_sku = string
     network_profile_outbound_type = string
     network_profile_pod_cidr = string
     network_profile_service_cidr = string
+    network_profile_dns_service_ip = string
 
   }))
 }

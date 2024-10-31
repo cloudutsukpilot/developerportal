@@ -6,6 +6,6 @@ include "root" {
 
 # Include the centralized configuration
 include "resource_group" {
-  path = "${dirname(find_in_parent_folders())}/_terragrunt/resource_group.hcl"
+  path   = "${dirname(find_in_parent_folders())}/_terragrunt/resource_group.hcl"
   expose = true
 }

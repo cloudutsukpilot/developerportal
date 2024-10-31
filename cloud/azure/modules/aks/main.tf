@@ -43,14 +43,15 @@ resource "azurerm_kubernetes_cluster" "aks_clusters" {
   }
 
   network_profile {
-    network_plugin     = each.value.network_profile_network_plugin
-    dns_service_ip     = each.value.network_profile_dns_service_ip
-    load_balancer_sku  = each.value.network_profile_load_balancer_sku
-    network_policy     = each.value.network_profile_network_policy
-    outbound_type      = each.value.network_profile_outbound_type
-    pod_cidr           = each.value.network_profile_pod_cidr
-    service_cidr       = each.value.network_profile_service_cidr
-
+    network_policy      = each.value.network_profile_network_policy
+    network_plugin      = each.value.network_profile_network_plugin
+    network_plugin_mode = each.value.network_profile_network_plugin_mode
+    network_data_plane  = each.value.network_profile_network_data_plane
+    load_balancer_sku   = each.value.network_profile_load_balancer_sku
+    outbound_type       = each.value.network_profile_outbound_type
+    pod_cidr            = each.value.network_profile_pod_cidr
+    service_cidr        = each.value.network_profile_service_cidr
+    dns_service_ip      = each.value.network_profile_dns_service_ip
   }
 }
 

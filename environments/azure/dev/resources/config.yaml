@@ -12,23 +12,28 @@ storage_accounts:
     resource_tags:
       Application: Backstage
 virtual_networks:
-  - name: dev-backstage-vnet-01
+  - name: dev-backstage-vnet-spoke-01
     address_space: 
-      - "10.151.0.0/16"
+      - "10.1.0.0/16"
     location: centralindia
     resource_group_name: dev-backstage-rg-01
     resource_tags:
       Application: Backstage
 subnets:
-  - name: aks-subnet
+  - name: aks-node-pool-subnet
     resource_group_name: dev-backstage-rg-01
-    virtual_network_name: dev-backstage-vnet-01
-    address_prefixes: ["10.151.0.0/22"]
+    virtual_network_name: dev-backstage-vnet-spoke-01
+    address_prefixes: ["10.1.0.0/18"]
     service_endpoints: []
-  - name: bastion-subnet
+  - name: aks-system-node-pool-subnet
     resource_group_name: dev-backstage-rg-01
-    virtual_network_name: dev-backstage-vnet-01
-    address_prefixes: ["10.151.4.0/22"]
+    virtual_network_name: dev-backstage-vnet-spoke-01
+    address_prefixes: ["10.1.64.0/26"]
+    service_endpoints: []
+  - name: aks-user-node-pool-subnet
+    resource_group_name: dev-backstage-rg-01
+    virtual_network_name: dev-backstage-vnet-spoke-01
+    address_prefixes: ["10.1.128.0/18"]
     service_endpoints: []
 loganalyticsworkspaces:
   - name: devbglaw01
@@ -53,7 +58,7 @@ aks_clusters:
     role_based_access_control_enabled: true
     sku_tier: Free
     workload_identity_enabled: false
-    vnet_subnet_id: "/subscriptions/256259c9-e59b-4d4f-83ad-5b2f91220ad4/resourceGroups/dev-backstage-rg-01/providers/Microsoft.Network/virtualNetworks/dev-backstage-vnet-01/subnets/aks-subnet"
+    vnet_subnet_id: "/subscriptions/256259c9-e59b-4d4f-83ad-5b2f91220ad4/resourceGroups/dev-backstage-rg-01/providers/Microsoft.Network/virtualNetworks/dev-backstage-vnet-spoke-01/subnets/aks-node-pool-subnet"
     default_node_pool:
       name: default
       vm_size: "Standard_DS2_v2"
@@ -63,19 +68,21 @@ aks_clusters:
       min_count: 1
       max_count: 2
       orchestrator_version: 1.31.1
-      vnet_subnet_id: "/subscriptions/256259c9-e59b-4d4f-83ad-5b2f91220ad4/resourceGroups/dev-backstage-rg-01/providers/Microsoft.Network/virtualNetworks/dev-backstage-vnet-01/subnets/aks-subnet"
+      vnet_subnet_id: "/subscriptions/256259c9-e59b-4d4f-83ad-5b2f91220ad4/resourceGroups/dev-backstage-rg-01/providers/Microsoft.Network/virtualNetworks/dev-backstage-vnet-spoke-01/subnets/aks-node-pool-subnet"
       upgrade_settings:
         max_surge: 1
     identity:
       type: SystemAssigned
     network_profile:
+      network_policy: cilium
       network_plugin: azure
-      dns_service_ip: 
+      network_plugin_mode: overlay
+      network_data_plane: cilium
       load_balancer_sku: standard
-      network_policy: azure
       outbound_type: loadBalancer
-      pod_cidr: null
-      service_cidr: null
+      pod_cidr: 10.2.192.0/19
+      service_cidr: 10.2.240.0/20
+      dns_service_ip: 10.2.240.10
     resource_tags:
       Application: Backstage
 

@@ -6,6 +6,6 @@ include {
 
 # Include the centralized configuration
 include "virtual_network" {
-  path = "${dirname(find_in_parent_folders())}/_terragrunt/virtual_network.hcl"
+  path   = "${dirname(find_in_parent_folders())}/_terragrunt/subnet.hcl"
   expose = true
 }

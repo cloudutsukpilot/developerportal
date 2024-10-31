@@ -3,3 +3,37 @@ resource_groups:
     location: centralindia
     resource_tags: 
       Application: Backstage
+virtual_networks:
+  - name: common-backstage-vnet-hub-01
+    address_space: 
+      - "10.0.0.0/16"
+    location: centralindia
+    resource_group_name: common-backstage-rg-01
+    resource_tags:
+      Application: Backstage
+subnets:
+  - name: azfw-subnet
+    resource_group_name: common-backstage-rg-01
+    virtual_network_name: common-backstage-vnet-hub-01
+    address_prefixes: ["10.0.1.0/26"]
+    service_endpoints: []
+  - name: appgw-subnet
+    resource_group_name: common-backstage-rg-01
+    virtual_network_name: common-backstage-vnet-hub-01
+    address_prefixes: ["10.0.2.0/26"]
+    service_endpoints: []
+  - name: vpngw-subnet
+    resource_group_name: common-backstage-rg-01
+    virtual_network_name: common-backstage-vnet-hub-01
+    address_prefixes: ["10.0.3.0/26"]
+    service_endpoints: []
+  - name: azkv-subnet
+    resource_group_name: common-backstage-rg-01
+    virtual_network_name: common-backstage-vnet-hub-01
+    address_prefixes: ["10.0.4.0/26"]
+    service_endpoints: []
+  - name: acr-subnet
+    resource_group_name: common-backstage-rg-01
+    virtual_network_name: common-backstage-vnet-hub-01
+    address_prefixes: ["10.0.5.0/26"]
+    service_endpoints: []

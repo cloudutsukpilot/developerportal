@@ -17,7 +17,7 @@ tasks:
   run-pipeline:
     desc: Run the pipeline
     cmds:
-      - act -j deploy-azure-infra
+      - act -j initialize-azure-infra
 
   init-all:
     desc: Initialize the project

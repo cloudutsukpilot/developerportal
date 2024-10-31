@@ -1,8 +1,8 @@
 # Generate Provider.tf for Azure
 generate "provider" {
-    path = "provider.tf"
-    if_exists = "overwrite_terragrunt"
-    contents = <<EOF
+  path      = "provider.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
     terraform {
       required_version = ">= 1.9.8"
       
@@ -22,9 +22,9 @@ generate "provider" {
 
 # Generate Backend.tf for Azure
 generate "backend" {
-  path = "backend.tf"
+  path      = "backend.tf"
   if_exists = "overwrite_terragrunt"
-  contents = <<EOF
+  contents  = <<EOF
 terraform {
   backend "azurerm" {
     resource_group_name   = "terraform-backend"  # Update with your resource group name
@@ -37,8 +37,8 @@ EOF
 }
 
 terraform {
-    before_hook "tflint" {
-        commands     = ["init","plan"]
-        execute      = ["echo"]
-    }
+  before_hook "tflint" {
+    commands = ["init", "plan"]
+    execute  = ["echo"]
+  }
 }
