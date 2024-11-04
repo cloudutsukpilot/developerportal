@@ -25,6 +25,7 @@ env:
   AZURE_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   AZURE_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   AZURE_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  ENV: ${{ github.event.inputs.ENV || 'dev' }}
   
 jobs:
   initialize-azure-infra:
@@ -37,19 +38,52 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        working-directory: environments/azure/${{ env.ENV }}/resources
 
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Repository Checkout
       uses: actions/checkout@v2
+    
+    # Install the latest version of Terraform CLI
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: $TERRAFORM_VERSION
+
+    # Install Terragrunt
+    - name: Install Terragrunt
+      run: |
+        wget https://github.com/gruntwork-io/terragrunt/releases/download/v$TERRAGRUNT_VERSION/terragrunt_linux_amd64
+        chmod +x terragrunt_linux_amd64
+        sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+
+    # Initialize the Terragrunt working directory
+    - name: Terragrunt Init
+      id: init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: terragrunt run-all init
+
+    # Destroy the infrastructure
+    - name: Terragrunt Destroy
+      id: destroy
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: terragrunt run-all destroy -auto-approve
 
     - name: Azure CLI Login
       uses: azure/login@v2
       with:
         creds: '{"clientId":"${{ env.AZURE_CLIENT_ID }}","clientSecret":"${{ env.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ env.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ env.AZURE_TENANT_ID }}"}'
 
-    - name: Create Azure Storage Account for Terraform Backend
+    - name: Delete Azure Storage Account created for Terraform Backend
       run: |
         az account set --subscription "$ARM_SUBSCRIPTION_ID"
         subscriptionName=$(az account show --query name -o tsv)
@@ -85,45 +119,3 @@ jobs:
         fi
       env:
         ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
-
-
-    # - name: Terragrunt hclfmt
-    #   uses: gruntwork-io/terragrunt-action@v2
-    #   with:
-    #     tf_version: ${{ env.TERRAFORM_VERSION }}
-    #     tg_version: ${{ env.TERRAGRUNT_VERSION }}
-    #     tg_dir: ${{ env.WORKING_DIRECTORY }}
-    #     tg_command: 'hclfmt --terragrunt-check --terragrunt-diff'
-    
-    # Install the latest version of Terraform CLI
-    - name: Install Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: $TERRAFORM_VERSION
-
-    # Install Terragrunt
-    - name: Install Terragrunt
-      run: |
-        wget https://github.com/gruntwork-io/terragrunt/releases/download/v$TERRAGRUNT_VERSION/terragrunt_linux_amd64
-        chmod +x terragrunt_linux_amd64
-        sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
-
-    # Initialize the Terragrunt working directory
-    - name: Terragrunt Init
-      id: init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run: terragrunt run-all init
-
-    # Destroy the infrastructure
-    - name: Terragrunt Destroy
-      id: destroy
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run: terragrunt run-all destroy -auto-approve
