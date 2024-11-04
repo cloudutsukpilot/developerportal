@@ -1,4 +1,4 @@
-name: 'Deploy Azure Infrastructure'
+name: 'Deploy Hello World'
 
 on:
   push:
@@ -47,7 +47,7 @@ jobs:
 
     - name: Print ENV Value
       run: |
-        echo "Environment is: ${{ env.ENV }}"
+        echo "Environment is set to: ${{ env.ENV }}"
 
     - name: Azure CLI Login
       uses: azure/login@v2
@@ -56,9 +56,21 @@ jobs:
 
     - name: Get AKS Credentials
       run: |
+        set -e
         az aks get-credentials --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" --name "${{ env.AZURE_AKS_CLUSTER_NAME }}"
-    
+        echo "AKS credentials successfully retrieved and context set."
+
+    - name: Verify Kubeconfig Context
+      run: |
+        if [[ "$(kubectl config current-context)" == *"${{ env.AZURE_AKS_CLUSTER_NAME }}"* ]]; then
+          echo "Kubeconfig context is set correctly to ${AZURE_AKS_CLUSTER_NAME}."
+        else
+          echo "Failed to set kubeconfig context to ${AZURE_AKS_CLUSTER_NAME}." >&2
+          exit 1
+        fi
+
     - name: Deploy Hello World
+      if: ${{ success() }}
       run: |
         kubectl apply -f ./deployment.yaml
         kubectl apply -f ./service.yaml

@@ -1,4 +1,4 @@
-name: 'Deploy Azure Infrastructure'
+name: 'Destroy Azure Infrastructure'
 
 on:
   push:
