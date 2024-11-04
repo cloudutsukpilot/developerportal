@@ -3,16 +3,15 @@ name: 'Destroy Azure Infrastructure'
 on:
   push:
     branches: [ main ]
-    paths: .github/workflows/infrastructure-deployment.yaml
   pull_request:
     branches: [ main ]
-    paths: .github/workflows/infrastructure-deployment.yaml
   # Allows you to run this workflow manually from the Actions tab 
   workflow_dispatch:
     inputs:
-      tfaction: 
-        description: 'Terraform Action to Perform'
-        default: 'plan'
+      ENV:
+        description: 'Environment to destroy'
+        type: string
+        default: 'dev'
   
 env:
   STORAGE_ACCOUNT_NAME: cloudutsuktfstatestgacc
@@ -21,7 +20,7 @@ env:
   CONTAINER_NAME: developer-portal
   TERRAGRUNT_VERSION: 0.68.4
   TERRAFORM_VERSION: v1.9.8
-  WORKING_DIRECTORY: environments/azure
+  WORKING_DIRECTORY: environments/azure/${{ github.event.inputs.ENV }}/resources
   AZURE_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   AZURE_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   AZURE_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -120,11 +119,11 @@ jobs:
       run: terragrunt run-all init
 
     # Destroy the infrastructure
-    - name: Terragrunt Destory
-      id: plan
+    - name: Terragrunt Destroy
+      id: destroy
       env:
         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run: terragrunt destroy -auto-approve
+      run: terragrunt run-all destroy -auto-approve

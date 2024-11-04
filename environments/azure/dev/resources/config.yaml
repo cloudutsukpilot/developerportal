@@ -85,6 +85,7 @@ aks_clusters:
       dns_service_ip: 10.2.240.10
     resource_tags:
       Application: Backstage
+      TempTag: TempTagValue
 
     
     
