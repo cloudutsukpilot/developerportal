@@ -76,7 +76,7 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run: terragrunt run-all destroy -auto-approve
+      run: terragrunt run-all destroy -auto-approve --terragrunt-non-interactive
 
     - name: Azure CLI Login
       uses: azure/login@v2
@@ -88,14 +88,6 @@ jobs:
         az account set --subscription "$ARM_SUBSCRIPTION_ID"
         subscriptionName=$(az account show --query name -o tsv)
         echo "Subscription is set to: $subscriptionName"
-        # Create resource group
-        if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]]; then
-          az group create --name $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION \
-          --only-show-errors
-          echo "Resource group $RESOURCE_GROUP_NAME created."
-        else
-          echo "Resource group $RESOURCE_GROUP_NAME already exists."
-        fi
         
         # Create storage account
         if [[ $(az storage account check-name --name $STORAGE_ACCOUNT_NAME --query 'nameAvailable') == true ]]; then
@@ -116,6 +108,15 @@ jobs:
           echo "Blob container $CONTAINER_NAME created."
         else
           echo "Blob container $CONTAINER_NAME already exists."
+        fi
+
+        # Delete resource group
+        if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]]; then
+            az group delete --name $RESOURCE_GROUP_NAME --yes --no-wait \
+          --only-show-errors
+          echo "Resource group $RESOURCE_GROUP_NAME delete."
+        else
+          echo "Resource group $RESOURCE_GROUP_NAME does not exists."
         fi
       env:
         ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
