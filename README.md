@@ -19,7 +19,6 @@
     + Integration with Microsoft Entra ID 
     + Kubernetes Role-Based Access Control(K8 RBAC) using Azure RBAC, and pod identities
 
-
 2. **Security**
 - Cluster Security and Upgrades
     + Securing Access to the API server

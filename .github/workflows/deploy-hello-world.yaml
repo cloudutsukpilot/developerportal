@@ -3,10 +3,14 @@ name: 'Deploy Azure Infrastructure'
 on:
   push:
     branches: [ main ]
-    paths: .github/workflows/infrastructure-deployment.yaml
+    paths: 
+      - .github/workflows/deploy-hello-world.yaml
+      - environments/azure/**/apps/hello-world/**
   pull_request:
     branches: [ main ]
-    paths: .github/workflows/infrastructure-deployment.yaml
+    paths: 
+      - .github/workflows/deploy-hello-world.yaml
+      - environments/azure/**/apps/hello-world/**
   # Allows you to run this workflow manually from the Actions tab 
   workflow_dispatch:
     inputs:
