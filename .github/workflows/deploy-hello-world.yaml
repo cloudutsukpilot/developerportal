@@ -26,7 +26,7 @@ env:
   AZURE_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZURE_RESOURCE_GROUP: "dev-backstage-rg-01"
   AZURE_AKS_CLUSTER_NAME: "devbgaks01"
-  ENV: ${{ github.event.inputs.ENV }}
+  ENV: ${{ github.event.inputs.ENV || 'dev' }}
 
   
 jobs:
