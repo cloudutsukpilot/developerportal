@@ -1,5 +1,15 @@
 version: 3
 
+vars:
+  AZURE_RESOURCE_GROUP: "dev-backstage-rg-01"
+  AZURE_AKS_CLUSTER_NAME: "devbgaks01"
+  AZURE_SUBSCRIPTION_ID: "{{.ARM_SUBSCRIPTION_ID}}"
+  AZURE_TENANT_ID: "{{.ARM_TENANT_ID}}"
+  AZURE_CLIENT_ID: "{{.ARM_CLIENT_ID}}"
+  AZURE_CLIENT_SECRET: "{{.ARM_CLIENT_SECRET}}"
+  ENV: '{{.ENV | default "dev"}}'
+
+  Location: "eastus"
 tasks:
   one-click-deploy:
     desc: "Deploy the application to the cloud"
@@ -15,10 +25,15 @@ tasks:
       - git commit -m "{{.CLI_ARGS}}"
       - git push    
     
-  run-pipeline:
+  ga-create-infra:
     desc: Run the pipeline
     cmds:
-      - act -j initialize-azure-infra
+      - act -j initialize-azure-infra --pull=false --action-offline-mode
+
+  ga-deploy-hw:
+    desc: Run the pipeline
+    cmds:
+      - act -j deploy-hello-world --input ENV={{ .ENV }} --pull=false --action-offline-mode
 
   init-all:
     desc: Initialize the project
@@ -57,3 +72,73 @@ tasks:
     desc: Output the infrastructure
     cmds:
       - terragrunt run-all output
+  
+  az-login:
+    desc: Azure Login
+    cmds:
+      - |
+        if az account show > /dev/null 2>&1; then
+          if [ "$(az account show --query "tenantId" | sed 's/"//g')" != {{.AZURE_TENANT_ID}} ]; then
+            echo "Tenant ID does not match with the terraform azure credentials. Logging out of existing tenant."
+            az logout
+            az login --service-principal -u {{.AZURE_CLIENT_ID}} -p {{.AZURE_CLIENT_SECRET}} --tenant {{.AZURE_TENANT_ID}}
+            az account set --subscription "{{.AZURE_SUBSCRIPTION_ID}}"
+            echo "Az Login successful."
+            echo "Azure Subscription set to: {{.AZURE_SUBSCRIPTION_ID}}"
+          else
+            echo "Tenant ID :{{.AZURE_TENANT_ID}}"
+            if [ "$(az account show --query "id" | sed 's/"//g')" != {{.AZURE_SUBSCRIPTION_ID}} ]; then
+              echo "Subscription Id does not match with the terraform azure credentials. Setting the subscription ID to {{.AZURE_SUBSCRIPTION_ID}}."
+              az account set --subscription "{{.AZURE_SUBSCRIPTION_ID}}"
+              echo "Subscription ID :{{.AZURE_SUBSCRIPTION_ID}}"
+            else
+              echo "Subscription ID :{{.AZURE_SUBSCRIPTION_ID}}"
+            fi
+          fi
+        else
+            echo "No active Azure accounts. Logging in..."
+            az login --service-principal -u {{.AZURE_CLIENT_ID}} -p {{.AZURE_CLIENT_SECRET}} --tenant {{.AZURE_TENANT_ID}}
+            az account set --subscription "{{.AZURE_SUBSCRIPTION_ID}}"
+            echo "Az Login successful."
+            echo "Azure Subscription set to: {{.AZURE_SUBSCRIPTION_ID}}"
+        fi
+    silent: true
+
+  az-aks-get-creds:
+    desc: Get the AKS credentials
+    cmds:
+      - task: az-login
+      - az aks get-credentials --resource-group {{ .AZURE_RESOURCE_GROUP }} --name {{ .AZURE_AKS_CLUSTER_NAME }}
+
+  deploy-hello-world:
+    desc: Deploy the hello-world application
+    cmds:
+      - task: az-aks-get-creds
+      - | 
+        kubectl apply -f environments/azure/{{ .ENV }}/apps/hello-world/deployment.yaml
+        kubectl apply -f environments/azure/{{ .ENV }}/apps/hello-world/service.yaml
+        kubectl get pods
+        kubectl get services
+
+  delete-hello-world:
+    desc: Deploy the hello-world application
+    cmds:
+      - task: az-aks-get-creds
+      - | 
+        kubectl delete -f environments/azure/{{ .ENV }}/apps/hello-world/service.yaml
+        kubectl delete -f environments/azure/{{ .ENV }}/apps/hello-world/deployment.yaml
+
+  dev-deploy-hello-world:
+    desc: Deploy the hello-world application
+    vars:
+      ENV: dev
+    cmds:
+      - task: deploy-hello-world
+
+  dev-delete-hello-world:
+    desc: Delete the hello-world application
+    vars:
+      ENV: dev
+    cmds:
+      - task: delete-hello-world
+      

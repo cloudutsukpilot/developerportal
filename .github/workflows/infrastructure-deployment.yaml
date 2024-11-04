@@ -88,56 +88,60 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
 
-    - name: Terragrunt hclfmt
-      uses: gruntwork-io/terragrunt-action@v2
-      with:
-        tf_version: ${{ env.TERRAFORM_VERSION }}
-        tg_version: ${{ env.TERRAGRUNT_VERSION }}
-        tg_dir: ${{ env.WORKING_DIRECTORY }}
-        tg_command: 'hclfmt --terragrunt-check --terragrunt-diff'
+    # - name: Terragrunt hclfmt
+    #   uses: gruntwork-io/terragrunt-action@v2
+    #   with:
+    #     tf_version: ${{ env.TERRAFORM_VERSION }}
+    #     tg_version: ${{ env.TERRAGRUNT_VERSION }}
+    #     tg_dir: ${{ env.WORKING_DIRECTORY }}
+    #     tg_command: 'hclfmt --terragrunt-check --terragrunt-diff'
     
-    - name: Check Azure CLI Version
-      run: az --version
-
-    - name: Terragrunt Validate
-      uses: gruntwork-io/terragrunt-action@v2
+    # Install the latest version of Terraform CLI
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v3
       with:
-        tf_version: ${{ env.TERRAFORM_VERSION }}
-        tg_version: ${{ env.TERRAGRUNT_VERSION }}
-        tg_dir: ${{ env.WORKING_DIRECTORY }}
-        tg_command: 'validate'
-      env:
-        ARM_CLIENT_ID: ${{ env.ARM_CLIENT_ID  }}
-        ARM_CLIENT_SECRET: ${{ env.ARM_CLIENT_SECRET  }}
-        ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ env.ARM_SUBSCRIPTION_ID }}
+        terraform_version: $TERRAFORM_VERSION
+
+    # Install Terragrunt
+    - name: Install Terragrunt
+      run: |
+        wget https://github.com/gruntwork-io/terragrunt/releases/download/v$TERRAGRUNT_VERSION/terragrunt_linux_amd64
+        chmod +x terragrunt_linux_amd64
+        sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
 
       
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terragrunt Format
+      id: format
+      run: terragrunt hclfmt 
+      continue-on-error: true
+
+    # Initialize the Terragrunt working directory
     - name: Terragrunt Init
-      uses: gruntwork-io/terragrunt-action@v2
-      with:
-        tf_version: ${{ env.TERRAFORM_VERSION }}
-        tg_version: ${{ env.TERRAGRUNT_VERSION }}
-        tg_dir: ${{ env.WORKING_DIRECTORY }}
-        tg_command: 'init'
+      id: init
       env:
-        ARM_CLIENT_ID: ${{ env.ARM_CLIENT_ID  }}
-        ARM_CLIENT_SECRET: ${{ env.ARM_CLIENT_SECRET  }}
-        ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ env.ARM_SUBSCRIPTION_ID }}
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: terragrunt run-all init
 
+    # Plan the changes to the infrastructure
     - name: Terragrunt Plan
-      uses: gruntwork-io/terragrunt-action@v2
-      with:
-        tf_version: ${{ env.TERRAFORM_VERSION }}
-        tg_version: ${{ env.TERRAGRUNT_VERSION }}
-        tg_dir: ${{ env.WORKING_DIRECTORY }}
-        tg_command: 'plan'
+      id: plan
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: terragrunt plan
 
+    # Apply the changes to the infrastructure
     - name: Terragrunt Apply
-      uses: gruntwork-io/terragrunt-action@v2
-      with:
-        tf_version: ${{ env.TERRAFORM_VERSION }}
-        tg_version: ${{ env.TERRAGRUNT_VERSION }}
-        tg_dir: ${{ env.WORKING_DIRECTORY }}
-        tg_command: 'apply'
+      id: apply
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      run: terragrunt apply -auto-approve

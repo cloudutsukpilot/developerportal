@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world-service
+spec:
+  selector:
+    name: hello-kubernetes  # Ensure proper indentation and syntax
+  ports:
+    - protocol: TCP  # Correct indentation for the list item
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
