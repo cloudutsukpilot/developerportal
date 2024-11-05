@@ -28,8 +28,8 @@ env:
   ENV: ${{ github.event.inputs.ENV || 'dev' }}
   
 jobs:
-  initialize-azure-infra:
-    name: Initialize Azure Infrastructure
+  destroy-azure-infra:
+    name: Destroy Azure Infrastructure
     runs-on: ubuntu-latest
     environment: development
     # needs: [scan-terraform-config]
