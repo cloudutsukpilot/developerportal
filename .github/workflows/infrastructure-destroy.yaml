@@ -89,25 +89,22 @@ jobs:
         subscriptionName=$(az account show --query name -o tsv)
         echo "Subscription is set to: $subscriptionName"
         
-        # Create storage account
-        if [[ $(az storage account check-name --name $STORAGE_ACCOUNT_NAME --query 'nameAvailable') == true ]]; then
-          az storage account create --name $STORAGE_ACCOUNT_NAME \
-              --resource-group $RESOURCE_GROUP_NAME \
-              --sku Standard_LRS \
-              --encryption-services blob \
-              --only-show-errors
-          echo "Storage account $STORAGE_ACCOUNT_NAME created."
-        else
-          echo "Storage account $STORAGE_ACCOUNT_NAME already exists."
-        fi
-        
-        # Create blob container
-        if [[ $(az storage container exists --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login --query 'exists') == false ]]; then
-          az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login \
+        # Delete blob container
+        if [[ $(az storage container exists --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login --query 'exists') == true ]]; then
+          az storage container delete --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login \
           --only-show-errors
-          echo "Blob container $CONTAINER_NAME created."
+          echo "Blob container $CONTAINER_NAME deleted."
         else
-          echo "Blob container $CONTAINER_NAME already exists."
+          echo "Blob container $CONTAINER_NAME does not exist."
+        fi
+
+        # Create storage account
+        if [[ $(az storage account check-name --name $STORAGE_ACCOUNT_NAME --query 'nameAvailable') == false ]]; then
+          az storage account delete --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP_NAME --yes --no-wait \
+          --only-show-errors
+          echo "Storage account $STORAGE_ACCOUNT_NAME deleted."
+        else
+          echo "Storage account $STORAGE_ACCOUNT_NAME does not exist."
         fi
 
         # Delete resource group
