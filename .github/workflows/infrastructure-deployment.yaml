@@ -86,15 +86,6 @@ jobs:
         fi
       env:
         ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
-
-
-    # - name: Terragrunt hclfmt
-    #   uses: gruntwork-io/terragrunt-action@v2
-    #   with:
-    #     tf_version: ${{ env.TERRAFORM_VERSION }}
-    #     tg_version: ${{ env.TERRAGRUNT_VERSION }}
-    #     tg_dir: ${{ env.WORKING_DIRECTORY }}
-    #     tg_command: 'hclfmt --terragrunt-check --terragrunt-diff'
     
     # Install the latest version of Terraform CLI
     - name: Install Terraform
@@ -105,7 +96,7 @@ jobs:
     # Install Terragrunt
     - name: Install Terragrunt
       run: |
-        wget https://github.com/gruntwork-io/terragrunt/releases/download/v$TERRAGRUNT_VERSION/terragrunt_linux_amd64
+        wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v$TERRAGRUNT_VERSION/terragrunt_linux_amd64
         chmod +x terragrunt_linux_amd64
         sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
 
