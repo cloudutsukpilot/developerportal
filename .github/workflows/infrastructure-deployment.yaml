@@ -99,16 +99,55 @@ jobs:
         chmod +x terragrunt_linux_amd64
         sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
 
-      
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terragrunt Format
-      id: format
+      id: format-common
+      run: terragrunt hclfmt 
+      continue-on-error: true
+      working-directory: environments/azure/common/resources
+
+    # Initialize the Terragrunt working directory
+    - name: Terragrunt Init
+      id: init-common
+      env:
+        ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
+      run: terragrunt run-all init
+      working-directory: environments/azure/common/resources
+
+    # Plan the changes to the infrastructure
+    - name: Terragrunt Plan
+      id: plan-common
+      env:
+        ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
+      run: terragrunt run-all plan
+      working-directory: environments/azure/common/resources
+
+    # Apply the changes to the infrastructure
+    - name: Terragrunt Apply
+      id: apply-common
+      env:
+        ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
+      run: terragrunt run-all apply -auto-approve --terragrunt-non-interactive
+      working-directory: environments/azure/common/resources
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terragrunt Format
+      id: format-env
       run: terragrunt hclfmt 
       continue-on-error: true
 
     # Initialize the Terragrunt working directory
     - name: Terragrunt Init
-      id: init
+      id: init-env
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
@@ -118,7 +157,7 @@ jobs:
 
     # Plan the changes to the infrastructure
     - name: Terragrunt Plan
-      id: plan
+      id: plan-env
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
@@ -126,12 +165,12 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
       run: terragrunt run-all plan
 
-    # # Apply the changes to the infrastructure
-    # - name: Terragrunt Apply
-    #   id: apply
-    #   env:
-    #     ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
-    #     ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
-    #     ARM_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
-    #     ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
-    #   run: terragrunt run-all apply -auto-approve --terragrunt-non-interactive
+    # Apply the changes to the infrastructure
+    - name: Terragrunt Apply
+      id: apply-env
+      env:
+        ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
+      run: terragrunt run-all apply -auto-approve --terragrunt-non-interactive
