@@ -100,14 +100,14 @@ jobs:
         sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
 
     # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terragrunt Format
+    - name: Terragrunt Format - Common
       id: format-common
       run: terragrunt hclfmt 
       continue-on-error: true
       working-directory: environments/azure/common/resources
 
     # Initialize the Terragrunt working directory
-    - name: Terragrunt Init
+    - name: Terragrunt Init - Common
       id: init-common
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
@@ -118,7 +118,7 @@ jobs:
       working-directory: environments/azure/common/resources
 
     # Plan the changes to the infrastructure
-    - name: Terragrunt Plan
+    - name: Terragrunt Plan - Common
       id: plan-common
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
@@ -129,7 +129,7 @@ jobs:
       working-directory: environments/azure/common/resources
 
     # Apply the changes to the infrastructure
-    - name: Terragrunt Apply
+    - name: Terragrunt Apply - Common
       id: apply-common
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
@@ -140,13 +140,13 @@ jobs:
       working-directory: environments/azure/common/resources
 
     # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terragrunt Format
+    - name: Terragrunt Format - Env
       id: format-env
       run: terragrunt hclfmt 
       continue-on-error: true
 
     # Initialize the Terragrunt working directory
-    - name: Terragrunt Init
+    - name: Terragrunt Init - Env
       id: init-env
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
@@ -156,7 +156,7 @@ jobs:
       run: terragrunt run-all init
 
     # Plan the changes to the infrastructure
-    - name: Terragrunt Plan
+    - name: Terragrunt Plan - Env
       id: plan-env
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
@@ -166,7 +166,7 @@ jobs:
       run: terragrunt run-all plan
 
     # Apply the changes to the infrastructure
-    - name: Terragrunt Apply
+    - name: Terragrunt Apply - Env
       id: apply-env
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
