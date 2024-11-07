@@ -2,7 +2,7 @@ resource_groups:
   - name: dev-rg-backstage-01
     location: centralindia
     resource_tags: 
-      Application: Backstage
+      resource_type: rg
 storage_accounts:
   - name: devbgstgacc01
     resource_group_name: dev-rg-backstage-01
@@ -10,7 +10,7 @@ storage_accounts:
     account_tier: Standard
     account_replication_type: LRS
     resource_tags:
-      Application: Backstage
+      resource_type: sa
 virtual_networks:
   - name: dev-vnet-backstage-spoke-01
     address_space: 
@@ -18,7 +18,7 @@ virtual_networks:
     location: centralindia
     resource_group_name: dev-rg-backstage-01
     resource_tags:
-      Application: Backstage
+      resource_type: vnet
 subnets:
   - name: aks-node-pool-subnet
     resource_group_name: dev-rg-backstage-01
@@ -76,8 +76,7 @@ aks_clusters:
       service_cidr: 10.2.240.0/20
       dns_service_ip: 10.2.240.10
     resource_tags:
-      Application: Backstage
-      TempTag: TempTagValue
+      resource_type: aks
 role_assignments:
   - name: dev-ra-apurva-rg
     resource_groups: 

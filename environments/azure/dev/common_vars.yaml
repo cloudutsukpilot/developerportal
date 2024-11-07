@@ -1,5 +1,6 @@
 common_tags:
-  technical-owner: devops
-  cost-center: 13
-  app-it-devops-shared: true
-  environment: sandbox
+  cost-center: VS
+  subscription: development
+  technical-owner: cloudutsuk
+  application: backstage
+  env: dev

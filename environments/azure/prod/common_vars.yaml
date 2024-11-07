@@ -3,4 +3,4 @@ common_tags:
   subscription: development
   technical-owner: cloudutsuk
   application: backstage
-  env: common
+  env: prod
