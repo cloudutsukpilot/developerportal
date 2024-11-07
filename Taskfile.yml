@@ -64,6 +64,36 @@ tasks:
   destroy-all:
     desc: Destroy the infrastructure
     cmds:
+      - task: az-login
+      - | 
+        # Set environment variables for DNS resource group and zone name
+        DNS_RESOURCE_GROUP="dev-rg-domain-rg-01"  
+        DNS_ZONE_NAME="cloudutsuk.com"  
+
+        # Define the DNS records to delete
+        DNS_RECORDS=("hellok8" "aksstoredemo")  
+
+        delete_dns_record() {
+          local record_name=$1
+          # Check if the DNS record exists
+          if az network dns record-set a show --resource-group "$DNS_RESOURCE_GROUP" --zone-name "$DNS_ZONE_NAME" --name "$record_name" &> /dev/null; then
+            echo "DNS record-set $record_name.${DNS_ZONE_NAME} exists. Deleting the record..."
+            az network dns record-set a delete \
+              --resource-group "$DNS_RESOURCE_GROUP" \
+              --zone-name "$DNS_ZONE_NAME" \
+              --name "$record_name" \
+              --yes \
+              --output none
+            echo "DNS record $record_name.${DNS_ZONE_NAME} deleted successfully."
+          else
+            echo "DNS record-set $record_name.${DNS_ZONE_NAME} does not exist. Skipping deletion."
+          fi
+        }
+
+        # Loop through each DNS record and delete it if it exists
+        for record_name in "${DNS_RECORDS[@]}"; do
+          delete_dns_record "$record_name"
+        done
       - |
         terragrunt run-all init --reconfigure
         terragrunt run-all destroy -auto-approve --terragrunt-non-interactive 
