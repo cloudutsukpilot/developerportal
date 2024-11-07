@@ -26,6 +26,11 @@ env:
   AZURE_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZURE_RESOURCE_GROUP: "dev-rg-backstage-01"
   AZURE_AKS_CLUSTER_NAME: "dev-aks-bg-01"
+  DNS_RESOURCE_GROUP: "dev-rg-backstage-01"
+  DOMIAN_NAME: "cloudutsuk.com"
+  SUBDOMAIN_NAME: "hellok8"
+  DOMAIN_API_KEY: ${{ secrets.GODADDY_API_KEY }}
+  DOMAIN_API_SECRET: ${{ secrets.GODADDY_API_SECRET }}
   ENV: ${{ github.event.inputs.ENV || 'dev' }}
 
   
@@ -75,3 +80,48 @@ jobs:
         kubectl apply -f ./deployment.yaml
         kubectl apply -f ./service.yaml
         
+    - name: Wait for LoadBalancer IP
+      run: |
+        echo "Waiting for the LoadBalancer IP to be assigned..."
+        end=$((SECONDS+300))  # wait up to 5 minutes
+        while [[ $SECONDS -lt $end ]]; do
+          export HW_PUBLIC_IP=$(kubectl get svc hello-world-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          if [[ -n "$HW_PUBLIC_IP" ]]; then
+            echo "Public IP assigned: $HW_PUBLIC_IP"
+            echo "HW_PUBLIC_IP=$HW_PUBLIC_IP" >> $GITHUB_ENV
+            break
+          fi
+          echo "Still waiting for the LoadBalancer IP..."
+          sleep 10
+        done
+  
+    - name: Update DNS Record
+      if: ${{ success() }}
+      run: |
+        # Domain details
+        DOMAIN="${{ env.DOMIAN_NAME}}"   
+        SUBDOMAIN="${{ env.SUBDOMAIN_NAME}}"  
+        IP_ADDRESS="${{ env.HW_PUBLIC_IP }}"    
+
+        # Check if the A record already exists
+        RECORD=$(curl -s -X GET \
+          -H "Authorization: sso-key ${{ env.DOMAIN_API_KEY }}:${{ env.DOMAIN_API_SECRET }}" \
+          "https://api.godaddy.com/v1/domains/${DOMAIN}/records/A/${SUBDOMAIN}" | jq -r '.[0].data')
+
+        # If the record exists and matches the IP address, skip update
+        if [[ "$RECORD" == "$IP_ADDRESS" ]]; then
+          echo "A record for ${SUBDOMAIN}.${DOMAIN} already points to ${IP_ADDRESS}. No update needed."
+        else
+          # Add or update the A record
+          RESPONSE=$(curl -s -X PUT \
+            -H "Authorization: sso-key ${API_KEY}:${API_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d "[{\"data\": \"${IP_ADDRESS}\", \"ttl\": 600}]" \
+            "https://api.godaddy.com/v1/domains/${DOMAIN}/records/A/${SUBDOMAIN}")
+
+          if [[ -z "$RESPONSE" ]]; then
+            echo "A record for ${SUBDOMAIN}.${DOMAIN} successfully created/updated to point to ${IP_ADDRESS}."
+          else
+            echo "Failed to update A record: $RESPONSE"
+          fi
+        fi

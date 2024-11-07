@@ -20,12 +20,13 @@ dependency "resource_group" {
 
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "apply", "destroy", "output"]
   mock_outputs = {
-    resource_group_outputs = {
+    resource_group_output = {
       "dummy-resource-group" = {
         id = "/subscriptions/12345678-1234-9876-4563-123456789012/resourceGroups/dummy-resource-group"
       }
     }
   }
+
 }
 
 inputs = {

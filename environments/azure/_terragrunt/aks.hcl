@@ -27,7 +27,7 @@ dependency "subnets" {
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "apply", "destroy", "output"]
   mock_outputs = {
     subnets_output = {
-      "aks-node-pool-subnet" = {
+      "aks-node-pool-subnet1" = {
         id = "/subscriptions/12345678-1234-9876-4563-123456789012/resourceGroups/example-resource-group/providers/Microsoft.Network/virtualNetworks/virtualNetworksValue/subnets/subnetValue"
       }
     }
@@ -60,7 +60,7 @@ inputs = {
     default_node_pool_enable_auto_scaling        = cluster.default_node_pool.enable_auto_scaling
     default_node_pool_type                       = cluster.default_node_pool.type
     default_node_pool_orchestrator_version       = cluster.default_node_pool.orchestrator_version
-    default_node_pool_vnet_subnet_id             = dependency.subnets.outputs.subnets_output[cluster.default_node_pool.node_pool_subnet_name].id
+    default_node_pool_vnet_subnet_id             = try(dependency.subnets.outputs.subnets_output[cluster.default_node_pool.node_pool_subnet_name].id, null)
     default_node_pool_upgrade_settings_max_surge = cluster.default_node_pool.upgrade_settings.max_surge
 
     identity_type = cluster.identity.type
