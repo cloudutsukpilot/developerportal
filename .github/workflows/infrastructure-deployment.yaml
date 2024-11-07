@@ -104,15 +104,15 @@ jobs:
         sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
 
     # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terragrunt Format - Common
-      id: format-common
+    - name: Common - Terragrunt Format
+      id: common-format
       run: terragrunt hclfmt 
       continue-on-error: true
       working-directory: environments/azure/common/resources
 
     # Initialize the Terragrunt working directory
-    - name: Terragrunt Init - Common
-      id: init-common
+    - name: Common - Terragrunt Init
+      id: common-init
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
@@ -122,8 +122,8 @@ jobs:
       working-directory: environments/azure/common/resources
 
     # Plan the changes to the infrastructure
-    - name: Terragrunt Plan - Common
-      id: plan-common
+    - name: Common - Terragrunt Plan
+      id: common-plan
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
@@ -133,8 +133,8 @@ jobs:
       working-directory: environments/azure/common/resources
 
     # Apply the changes to the infrastructure
-    - name: Terragrunt Apply - Common
-      id: apply-common
+    - name: Common - Terragrunt Apply
+      id: common-apply
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
@@ -144,14 +144,14 @@ jobs:
       working-directory: environments/azure/common/resources
 
     # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terragrunt Format - Env
-      id: format-env
+    - name: Env - Terragrunt Format
+      id: env-format
       run: terragrunt hclfmt 
       continue-on-error: true
 
     # Initialize the Terragrunt working directory
-    - name: Terragrunt Init - Env
-      id: init-env
+    - name: Env - Terragrunt Init
+      id: env-init
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
@@ -160,8 +160,8 @@ jobs:
       run: terragrunt run-all init
 
     # Plan the changes to the infrastructure
-    - name: Terragrunt Plan - Env
-      id: plan-env
+    - name: Env - Terragrunt Plan
+      id: env-plan
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
@@ -170,8 +170,8 @@ jobs:
       run: terragrunt run-all plan
 
     # Apply the changes to the infrastructure
-    - name: Terragrunt Apply - Env
-      id: apply-env
+    - name: Env - Terragrunt Apply
+      id: env-apply
       env:
         ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
