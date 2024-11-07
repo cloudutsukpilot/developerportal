@@ -25,7 +25,7 @@ env:
   AZURE_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   AZURE_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   AZURE_RESOURCE_GROUP: "dev-rg-backstage-01"
-  AZURE_AKS_CLUSTER_NAME: "devbgaks01"
+  AZURE_AKS_CLUSTER_NAME: "dev-aks-bg-01"
   ENV: ${{ github.event.inputs.ENV || 'dev' }}
 
   
