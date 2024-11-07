@@ -30,8 +30,8 @@ resource "azurerm_kubernetes_cluster" "aks_clusters" {
     max_count            = each.value.default_node_pool_max_count
     
     orchestrator_version = each.value.default_node_pool_orchestrator_version
-    #vnet_subnet_id      = length(local.node_pools) > 0 ? data.azurerm_subnet.node_pool_subnet[each.key].id : data.azurerm_subnet.cluster_subnet[each.key].id
-    vnet_subnet_id = each.value.default_node_pool_vnet_subnet_id
+    vnet_subnet_id      = each.value.default_node_pool_vnet_subnet_id
+    
     upgrade_settings {
       max_surge = each.value.default_node_pool_upgrade_settings_max_surge
     }

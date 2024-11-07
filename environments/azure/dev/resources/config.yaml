@@ -1,64 +1,56 @@
 resource_groups:
-  - name: dev-backstage-rg-01
+  - name: dev-rg-backstage-01
     location: centralindia
     resource_tags: 
       Application: Backstage
 storage_accounts:
   - name: devbgstgacc01
-    resource_group_name: dev-backstage-rg-01
+    resource_group_name: dev-rg-backstage-01
     location: centralindia
     account_tier: Standard
     account_replication_type: LRS
     resource_tags:
       Application: Backstage
 virtual_networks:
-  - name: dev-backstage-vnet-spoke-01
+  - name: dev-vnet-backstage-spoke-01
     address_space: 
       - "10.1.0.0/16"
     location: centralindia
-    resource_group_name: dev-backstage-rg-01
+    resource_group_name: dev-rg-backstage-01
     resource_tags:
       Application: Backstage
 subnets:
   - name: aks-node-pool-subnet
-    resource_group_name: dev-backstage-rg-01
-    virtual_network_name: dev-backstage-vnet-spoke-01
+    resource_group_name: dev-rg-backstage-01
+    virtual_network_name: dev-vnet-backstage-spoke-01
     address_prefixes: ["10.1.0.0/18"]
     service_endpoints: []
   - name: aks-system-node-pool-subnet
-    resource_group_name: dev-backstage-rg-01
-    virtual_network_name: dev-backstage-vnet-spoke-01
+    resource_group_name: dev-rg-backstage-01
+    virtual_network_name: dev-vnet-backstage-spoke-01
     address_prefixes: ["10.1.64.0/26"]
     service_endpoints: []
   - name: aks-user-node-pool-subnet
-    resource_group_name: dev-backstage-rg-01
-    virtual_network_name: dev-backstage-vnet-spoke-01
+    resource_group_name: dev-rg-backstage-01
+    virtual_network_name: dev-vnet-backstage-spoke-01
     address_prefixes: ["10.1.128.0/18"]
     service_endpoints: []
-loganalyticsworkspaces:
-  - name: devbglaw01
-    location: centralindia
-    resource_group_name: common-backstage-rg-01
-    sku: PerGB2018
-    retention_in_days: 30
-    resource_tags:
-      Application: Backstage
 aks_clusters:
-  - name: devbgaks01
+  - name: dev-aks-bg-01
     location: centralindia
-    resource_group_name: dev-backstage-rg-01
+    resource_group_name: dev-rg-backstage-01
     azure_policy_enabled: true
     dns_prefix: devbgaks01
     kubernetes_version: 1.31.1
     local_account_disabled: false
-    node_resource_group: MC_dev-backstage-rg-01_devbgaks01_centralindia
+    node_resource_group: MC_dev-rg-backstage-01_devbgaks01_centralindia
     oidc_issuer_enabled: false
     private_cluster_enabled: false
     private_cluster_public_fqdn_enabled: false
     role_based_access_control_enabled: true
     sku_tier: Free
     workload_identity_enabled: false
-    vnet_subnet_id: "/subscriptions/256259c9-e59b-4d4f-83ad-5b2f91220ad4/resourceGroups/dev-backstage-rg-01/providers/Microsoft.Network/virtualNetworks/dev-backstage-vnet-spoke-01/subnets/aks-node-pool-subnet"
+    vnet_name: dev-vnet-backstage-spoke-01
     default_node_pool:
       name: default
       vm_size: "Standard_DS2_v2"
@@ -68,7 +60,7 @@ aks_clusters:
       min_count: 1
       max_count: 2
       orchestrator_version: 1.31.1
-      vnet_subnet_id: "/subscriptions/256259c9-e59b-4d4f-83ad-5b2f91220ad4/resourceGroups/dev-backstage-rg-01/providers/Microsoft.Network/virtualNetworks/dev-backstage-vnet-spoke-01/subnets/aks-node-pool-subnet"
+      node_pool_subnet_name: aks-node-pool-subnet
       upgrade_settings:
         max_surge: 1
     identity:
@@ -86,9 +78,16 @@ aks_clusters:
     resource_tags:
       Application: Backstage
       TempTag: TempTagValue
+role_assignments:
+  - name: dev-ra-apurva-rg
+    resource_groups: 
+      - "dev-rg-backstage-01"
+    role_definition_name: "Contributor"
+    principal_id: "84b3ba48-6778-4c97-9476-05c75d54c7b0"
+    
+    
+    
 
-    
-    
     
     
   

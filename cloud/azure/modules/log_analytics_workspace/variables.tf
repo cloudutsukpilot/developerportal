@@ -6,5 +6,6 @@ variable "workspaces" {
     resource_group_name  = string
     sku                  = string
     retention_in_days    = number
+    tags                 = map(string)
   }))
 }

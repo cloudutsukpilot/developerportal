@@ -4,6 +4,7 @@ output "resource_group_output" {
     for rg in azurerm_resource_group.rg : rg.name => {
       name     = rg.name
       location = rg.location
+      id       = rg.id
     }
   }
 }

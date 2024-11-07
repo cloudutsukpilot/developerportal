@@ -15,7 +15,11 @@ generate "provider" {
     }
 
     provider "azurerm" {
-        features {}  # Required block for the Azure provider
+        features {
+          resource_group {
+            prevent_deletion_if_contains_resources = false
+          }
+        }  # Required block for the Azure provider
     }
     EOF
 }

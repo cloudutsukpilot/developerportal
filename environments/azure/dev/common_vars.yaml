@@ -1,4 +1,5 @@
 common_tags:
-  Owner: Cloudutsuk
-  Environment: Development
-  CreatedBy: Sakharam Shinde
+  technical-owner: devops
+  cost-center: 13
+  app-it-devops-shared: true
+  environment: sandbox

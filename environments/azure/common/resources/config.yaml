@@ -1,39 +1,53 @@
 resource_groups:
-  - name: common-backstage-rg-01
+  - name: dev-rg-common-01
     location: centralindia
     resource_tags: 
       Application: Backstage
 virtual_networks:
-  - name: common-backstage-vnet-hub-01
+  - name: dev-vnet-common-hub-01
     address_space: 
       - "10.0.0.0/16"
     location: centralindia
-    resource_group_name: common-backstage-rg-01
+    resource_group_name: dev-rg-common-01
     resource_tags:
       Application: Backstage
 subnets:
   - name: azfw-subnet
-    resource_group_name: common-backstage-rg-01
-    virtual_network_name: common-backstage-vnet-hub-01
+    resource_group_name: dev-rg-common-01
+    virtual_network_name: dev-vnet-common-hub-01
     address_prefixes: ["10.0.1.0/26"]
     service_endpoints: []
   - name: appgw-subnet
-    resource_group_name: common-backstage-rg-01
-    virtual_network_name: common-backstage-vnet-hub-01
+    resource_group_name: dev-rg-common-01
+    virtual_network_name: dev-vnet-common-hub-01
     address_prefixes: ["10.0.2.0/26"]
     service_endpoints: []
   - name: vpngw-subnet
-    resource_group_name: common-backstage-rg-01
-    virtual_network_name: common-backstage-vnet-hub-01
+    resource_group_name: dev-rg-common-01
+    virtual_network_name: dev-vnet-common-hub-01
     address_prefixes: ["10.0.3.0/26"]
     service_endpoints: []
   - name: azkv-subnet
-    resource_group_name: common-backstage-rg-01
-    virtual_network_name: common-backstage-vnet-hub-01
+    resource_group_name: dev-rg-common-01
+    virtual_network_name: dev-vnet-common-hub-01
     address_prefixes: ["10.0.4.0/26"]
     service_endpoints: []
   - name: acr-subnet
-    resource_group_name: common-backstage-rg-01
-    virtual_network_name: common-backstage-vnet-hub-01
+    resource_group_name: dev-rg-common-01
+    virtual_network_name: dev-vnet-common-hub-01
     address_prefixes: ["10.0.5.0/26"]
     service_endpoints: []
+loganalyticsworkspaces:
+  - name: dev-law-common-01
+    location: centralindia
+    resource_group_name: dev-rg-common-01
+    sku: PerGB2018
+    retention_in_days: 30
+    resource_tags:
+      Application: Backstage
+role_assignments:
+  - name: common-ra-apurva-rg
+    resource_groups: 
+      - "dev-rg-common-01"
+    role_definition_name: "Contributor"
+    principal_id: "84b3ba48-6778-4c97-9476-05c75d54c7b0"

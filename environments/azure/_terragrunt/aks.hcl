@@ -22,10 +22,16 @@ dependency "virtual_network" {
   skip_outputs                            = true
 }
 
-dependency "log_analytics_workspace" {
-  config_path                             = "${get_terragrunt_dir()}/../log_analytics_workspace"
+dependency "subnets" {
+  config_path                             = "${get_terragrunt_dir()}/../subnets"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "apply", "destroy", "output"]
-  skip_outputs                            = true
+  mock_outputs = {
+    subnets_output = {
+      "aks-node-pool-subnet" = {
+        id = "/subscriptions/12345678-1234-9876-4563-123456789012/resourceGroups/example-resource-group/providers/Microsoft.Network/virtualNetworks/virtualNetworksValue/subnets/subnetValue"
+      }
+    }
+  }
 }
 
 inputs = {
@@ -45,7 +51,6 @@ inputs = {
     sku_tier                            = cluster.sku_tier
     tags                                = merge(local.common_tags, cluster.resource_tags)
     workload_identity_enabled           = cluster.workload_identity_enabled
-    vnet_subnet_id                      = cluster.vnet_subnet_id
 
     default_node_pool_name                       = cluster.default_node_pool.name
     default_node_pool_vm_size                    = cluster.default_node_pool.vm_size
@@ -55,7 +60,7 @@ inputs = {
     default_node_pool_enable_auto_scaling        = cluster.default_node_pool.enable_auto_scaling
     default_node_pool_type                       = cluster.default_node_pool.type
     default_node_pool_orchestrator_version       = cluster.default_node_pool.orchestrator_version
-    default_node_pool_vnet_subnet_id             = cluster.default_node_pool.vnet_subnet_id
+    default_node_pool_vnet_subnet_id             = dependency.subnets.outputs.subnets_output[cluster.default_node_pool.node_pool_subnet_name].id
     default_node_pool_upgrade_settings_max_surge = cluster.default_node_pool.upgrade_settings.max_surge
 
     identity_type = cluster.identity.type
