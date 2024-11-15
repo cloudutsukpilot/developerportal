@@ -40,14 +40,13 @@ aks_clusters:
     location: centralindia
     resource_group_name: dev-rg-backstage-01
     azure_policy_enabled: true
-    dns_prefix: devbgaks01
+    dns_prefix: dev-aks-bg-01
     kubernetes_version: 1.31.1
     local_account_disabled: false
-    node_resource_group: MC_dev-rg-backstage-01_devbgaks01_centralindia
+    node_resource_group: MC_dev-rg-backstage-01_dev-aks-bg-01_centralindia
     oidc_issuer_enabled: false
     private_cluster_enabled: false
     private_cluster_public_fqdn_enabled: false
-    role_based_access_control_enabled: true
     sku_tier: Free
     workload_identity_enabled: false
     vnet_name: dev-vnet-backstage-spoke-01
@@ -75,8 +74,31 @@ aks_clusters:
       pod_cidr: 10.2.192.0/19
       service_cidr: 10.2.240.0/20
       dns_service_ip: 10.2.240.10
+    aad:
+      role_based_access_control_enabled: true
+      azure_rbac_enabled: true 
+      group_names:
+        - dev-aks-admin
     resource_tags:
       resource_type: aks
+aks_node_pools:
+  - name: usernodepool
+    kubernetes_cluster_name: dev-aks-bg-01
+    vm_size: "Standard_DS2_v2"
+    node_count: 1
+    auto_scaling_enabled: true
+    node_pool_subnet_name: aks-user-node-pool-subnet
+    min_count: 1
+    max_count: 2
+    orchestrator_version: 1.31.1
+    node_taints: []
+    os_disk_type: Managed
+    zones: []
+    fips_enabled: false
+    upgrade_settings:
+      max_surge: 1
+    resource_tags:
+      resource_type: nodepool
 role_assignments:
   - name: dev-ra-apurva-rg
     resource_groups: 

@@ -21,6 +21,9 @@ generate "provider" {
           }
         }  # Required block for the Azure provider
     }
+
+    provider "azuread" {
+    }
     EOF
 }
 
@@ -33,7 +36,7 @@ terraform {
   backend "azurerm" {
     resource_group_name   = "terraform-backend"  # Update with your resource group name
     storage_account_name  = "cloudutsuktfstatestgacc"       # Update with your storage account name
-    container_name        = "developer-portal"                    # Update with your container name for state files
+    container_name        = "terraform-state"                    # Update with your container name for state files
     key                   = "${path_relative_to_include()}/terraform.tfstate"
   }
 }

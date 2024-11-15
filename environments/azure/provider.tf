@@ -17,3 +17,6 @@
           }
         }  # Required block for the Azure provider
     }
+
+    provider "azuread" {
+    }

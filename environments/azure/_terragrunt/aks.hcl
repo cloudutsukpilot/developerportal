@@ -22,13 +22,25 @@ dependency "virtual_network" {
   skip_outputs                            = true
 }
 
-dependency "subnets" {
-  config_path                             = "${get_terragrunt_dir()}/../subnets"
+dependency "subnet" {
+  config_path                             = "${get_terragrunt_dir()}/../subnet"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "apply", "destroy", "output"]
   mock_outputs = {
     subnets_output = {
       "aks-node-pool-subnet1" = {
         id = "/subscriptions/12345678-1234-9876-4563-123456789012/resourceGroups/example-resource-group/providers/Microsoft.Network/virtualNetworks/virtualNetworksValue/subnets/subnetValue"
+      }
+    }
+  }
+}
+
+dependency "aad_group" {
+  config_path                             = "${get_terragrunt_dir()}/../../../entraid/resources/group"
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "apply", "destroy", "output"]
+  mock_outputs = {
+    aad_group_outputs = {
+      "dummy-aad-group" = {
+        id = "abcd1234-5678-90ab-cdef-abcd12345678"
       }
     }
   }
@@ -47,7 +59,6 @@ inputs = {
     oidc_issuer_enabled                 = cluster.oidc_issuer_enabled
     private_cluster_enabled             = cluster.private_cluster_enabled
     private_cluster_public_fqdn_enabled = cluster.private_cluster_public_fqdn_enabled
-    role_based_access_control_enabled   = cluster.role_based_access_control_enabled
     sku_tier                            = cluster.sku_tier
     tags                                = merge(local.common_tags, cluster.resource_tags)
     workload_identity_enabled           = cluster.workload_identity_enabled
@@ -60,7 +71,7 @@ inputs = {
     default_node_pool_enable_auto_scaling        = cluster.default_node_pool.enable_auto_scaling
     default_node_pool_type                       = cluster.default_node_pool.type
     default_node_pool_orchestrator_version       = cluster.default_node_pool.orchestrator_version
-    default_node_pool_vnet_subnet_id             = try(dependency.subnets.outputs.subnets_output[cluster.default_node_pool.node_pool_subnet_name].id, null)
+    default_node_pool_vnet_subnet_id             = lookup(dependency.subnet.outputs.subnets_output, cluster.default_node_pool.node_pool_subnet_name, { id = null }).id
     default_node_pool_upgrade_settings_max_surge = cluster.default_node_pool.upgrade_settings.max_surge
 
     identity_type = cluster.identity.type
@@ -74,6 +85,15 @@ inputs = {
     network_profile_pod_cidr            = cluster.network_profile.pod_cidr
     network_profile_service_cidr        = cluster.network_profile.service_cidr
     network_profile_dns_service_ip      = cluster.network_profile.dns_service_ip
+
+    role_based_access_control_enabled = cluster.aad.role_based_access_control_enabled
+    aad_azure_rbac_enabled            = cluster.aad.azure_rbac_enabled
+    aad_admin_group_object_ids = [
+      for group_name in cluster.aad.group_names :
+      substr(lookup(dependency.aad_group.outputs.aad_group_outputs, group_name, { id = null }).id, 8, length(lookup(dependency.aad_group.outputs.aad_group_outputs, group_name, { id = null }).id) - 8)
+    ]
+
+
     }
   }
 }

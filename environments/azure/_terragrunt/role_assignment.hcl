@@ -16,7 +16,8 @@ terraform {
 
 # Dependency
 dependency "resource_group" {
-  config_path = "${get_terragrunt_dir()}/../resource_group"
+  config_path                            = "${get_terragrunt_dir()}/../resource_group"
+  mock_outputs_merge_strategy_with_state = "deep_map_only"
 
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "apply", "destroy", "output"]
   mock_outputs = {
@@ -26,15 +27,15 @@ dependency "resource_group" {
       }
     }
   }
-
 }
+
 
 inputs = {
   role_assignments = {
     for idx, role_assignment in flatten([
       for role_assignment in local.config.role_assignments : [
         for rg in role_assignment.resource_groups : {
-          scope                = dependency.resource_group.outputs.resource_group_output[rg].id
+          scope                = lookup(dependency.resource_group.outputs.resource_group_output, rg, { id = "/subscriptions/12345678-1234-9876-4563-123456789012/resourceGroups/mock-resource-group" }).id
           role_definition_name = role_assignment.role_definition_name
           principal_id         = role_assignment.principal_id
         }

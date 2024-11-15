@@ -13,10 +13,9 @@ resource "azurerm_kubernetes_cluster" "aks_clusters" {
   oidc_issuer_enabled                 = each.value.oidc_issuer_enabled
   private_cluster_enabled             = each.value.private_cluster_enabled
   private_cluster_public_fqdn_enabled = each.value.private_cluster_public_fqdn_enabled
-  role_based_access_control_enabled   = each.value.role_based_access_control_enabled
   sku_tier                            = each.value.sku_tier
   tags                                = each.value.tags
-  workload_identity_enabled = each.value.workload_identity_enabled
+  workload_identity_enabled           = each.value.workload_identity_enabled
   #key_vault_key_id                    = data.azurerm_key_vault.vault.id
 
   default_node_pool {
@@ -52,6 +51,17 @@ resource "azurerm_kubernetes_cluster" "aks_clusters" {
     pod_cidr            = each.value.network_profile_pod_cidr
     service_cidr        = each.value.network_profile_service_cidr
     dns_service_ip      = each.value.network_profile_dns_service_ip
+  }
+
+  role_based_access_control_enabled   = each.value.role_based_access_control_enabled
+
+  dynamic "azure_active_directory_role_based_access_control" {
+    for_each = each.value.role_based_access_control_enabled && each.value.aad_azure_rbac_enabled ? ["rbac"] : []
+
+    content {
+      admin_group_object_ids = each.value.aad_admin_group_object_ids
+      azure_rbac_enabled     = each.value.aad_azure_rbac_enabled
+    }
   }
 }
 

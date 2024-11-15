@@ -1,0 +1,33 @@
+aad_groups:
+  - name: dev-aks-admin
+    display_name: dev-aks-admin
+    description: Kubernetes Cluster Administrators for All Non-Prod Clusters
+    owners:
+      - "c968e4fb-2328-4e7b-90c5-9f9aa06fe3f3"
+    members:
+      - "c968e4fb-2328-4e7b-90c5-9f9aa06fe3f3"
+    security_enabled: true
+  - name: dev-aks-read
+    display_name: dev-aks-read
+    description: Kubernetes Cluster Read-Only for All Non-Prod Clusters
+    owners:
+      - "c968e4fb-2328-4e7b-90c5-9f9aa06fe3f3"
+    members:
+      - "c968e4fb-2328-4e7b-90c5-9f9aa06fe3f3"
+    security_enabled: true
+  - name: prod-aks-admin
+    display_name: prod-aks-admin
+    description: Kubernetes Cluster Administrators for All Prod Clusters
+    owners:
+      - "c968e4fb-2328-4e7b-90c5-9f9aa06fe3f3"
+    members:
+      - "c968e4fb-2328-4e7b-90c5-9f9aa06fe3f3"
+    security_enabled: true
+  - name: prod-aks-read
+    display_name: prod-aks-read
+    description: Kubernetes Cluster Read-Only for All Prod Clusters
+    owners:
+      - "c968e4fb-2328-4e7b-90c5-9f9aa06fe3f3"
+    members:
+      - "c968e4fb-2328-4e7b-90c5-9f9aa06fe3f3"
+    security_enabled: true

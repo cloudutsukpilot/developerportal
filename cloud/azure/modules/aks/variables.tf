@@ -12,7 +12,6 @@ variable "aks_clusters" {
     oidc_issuer_enabled                 = bool
     private_cluster_enabled             = bool
     private_cluster_public_fqdn_enabled = bool
-    role_based_access_control_enabled   = bool
     sku_tier                            = string
     tags                                = map(string)
     workload_identity_enabled           = bool
@@ -39,6 +38,10 @@ variable "aks_clusters" {
     network_profile_pod_cidr            = string
     network_profile_service_cidr        = string
     network_profile_dns_service_ip      = string
+
+    role_based_access_control_enabled = bool
+    aad_azure_rbac_enabled     = bool
+    aad_admin_group_object_ids = list(string)
 
   }))
 }

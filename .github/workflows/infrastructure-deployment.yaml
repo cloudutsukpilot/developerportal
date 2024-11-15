@@ -22,7 +22,7 @@ env:
   STORAGE_ACCOUNT_NAME: cloudutsuktfstatestgacc
   RESOURCE_GROUP_NAME: terraform-backend
   RESOURCE_GROUP_LOCATION: centralindia
-  CONTAINER_NAME: developer-portal
+  CONTAINER_NAME: terraform-state
   TERRAGRUNT_VERSION: 0.68.4
   TERRAFORM_VERSION: v1.9.8
   AZURE_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -32,7 +32,7 @@ env:
   ENV: ${{ github.event.inputs.ENV || 'dev' }}
   
 jobs:
-  initialize-azure-infra:
+  deploy-azure-infrastructure:
     name: Initialize Azure Infrastructure
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.ENV || 'dev' }}
