@@ -82,3 +82,5 @@ env_variables
 **/scrap
 **/.infracost
 
+**/provider.tf
+**/backend.tf
