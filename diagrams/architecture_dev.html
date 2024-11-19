@@ -6,50 +6,57 @@
     <script>
         function init() {
             var $ = go.GraphObject.make;
-            myDiagram = $(go.Diagram, "myDiagramDiv")
-            var iconBaseUrl = "https://gitlab.com/sakharamgit/diagramascode/-/blob/main/icons";
+            var myDiagram = $(go.Diagram, "myDiagramDiv",
+                {
+                    // Enable the UndoManager
+                    "undoManager.isEnabled": true
+                }
+            );
+            var iconBaseUrl = "https://cloudutsuk.com/assets/img/icons";
     
             // Data Objects
             var nodeDataArray = [
-                { key: "DevOps", color: "lightblue", icon: iconBaseUrl + "/customer.svg" },
-                { key: "Azure", color: "lightblue", icon: iconBaseUrl + "/Azure/azure.svg", isGroup: true, },    
+                { key: "DevOps", color: "lightblue", icon: iconBaseUrl + "/miscellaneous/user.svg" },
+                { key: "Azure", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/microsoft-azure-18.svg", isGroup: true, groupLayout: "horizontal" },    
 
                 // Single Tenant
-                { key: "AKS", color: "lightblue", icon: iconBaseUrl + "/aks.svg", group: "Azure", isGroup: true},
-                { key: "System Node Pool", color: "lightblue", icon: iconBaseUrl + "/nodepool.svg", group: "AKS", isGroup: true},
-                { key: "System-Node1", color: "lightblue", icon: iconBaseUrl + "/nodepool.svg", group: "System Node Pool", isGroup: true},
-                { key: "App Node Pool", color: "lightblue", icon: iconBaseUrl + "/nodepool.svg", group: "AKS", isGroup: true},
-                { key: "App-Node1", color: "lightblue", icon: iconBaseUrl + "/nodepool.svg", group: "App Node Pool", isGroup: true},
-                { key: "App-Node2", color: "lightblue", icon: iconBaseUrl + "/nodepool.svg", group: "App Node Pool", isGroup: true},
-                { key: "Database Node Pool", color: "lightblue", icon: iconBaseUrl + "/nodepool.svg", group: "AKS", isGroup: true},
-                { key: "DB-Node1", color: "lightblue", icon: iconBaseUrl + "/nodepool.svg", group: "Database Node Pool", isGroup: true},
-                { key: "Postfix", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "DB-Node1"},
+                { key: "AKS", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/containers/aks.svg", group: "Azure", isGroup: true, groupLayout: "horizontal"},
+                { key: "System Node Pool", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/containers/nodepool.svg", group: "AKS", isGroup: true, groupLayout: "horizontal"},
+                { key: "System-Node1", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/containers/nodepool.svg", group: "System Node Pool", isGroup: true, groupLayout: "horizontal"},
+                { key: "App Node Pool", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/containers/nodepool.svg", group: "AKS", isGroup: true, groupLayout: "horizontal"},
+                { key: "frontend", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/containers/nodepool.svg", group: "App Node Pool", isGroup: true, groupLayout: "vertical"},
+                { key: "application", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/containers/nodepool.svg", group: "App Node Pool", isGroup: true, groupLayout: "horizontal"},
+                { key: "Database Node Pool", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/containers/nodepool.svg", group: "AKS", isGroup: true, groupLayout: "horizontal"},
+                { key: "Endpoints", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/azure.svg", group: "Azure", isGroup: true, groupLayout: "vertical"},
+                { key: "database", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/containers/nodepool.svg", group: "Database Node Pool", isGroup: true, groupLayout: "vertical"},
                 
                 // System Node Pool
-                { key: "kubedns", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "System-Node1"},
-                { key: "kube-proxy", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "System-Node1"},
-                { key: "kubelet", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "System-Node1"},
+                { key: "kubedns", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "System-Node1"},
+                { key: "kube-proxy", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "System-Node1"},
+                { key: "kubelet", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "System-Node1"},
 
                 // AKS Store Demo
-                { key: "store-front", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "App-Node1"},
-                { key: "store-admin", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "App-Node1"},
-                { key: "order-service", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "App-Node2"},
-                { key: "product-service", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "App-Node2"},
-                { key: "makeline-service", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "App-Node2"},
-                { key: "ai-service", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "App-Node2"},
-                { key: "order-queue", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "App-Node2"},
-                { key: "order-database", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "DB-Node1"},
-                { key: "chat-completion", color: "lightblue", icon: iconBaseUrl + "/pod.svg", group: "App-Node2"},
+                { key: "virtualgroup1", color: "lightblue", icon: iconBaseUrl + "", group: "application", isGroup: true, groupLayout: "vertical", isVirtual: true},
+                { key: "virtualgroup2", color: "lightblue", icon: iconBaseUrl + "", group: "application", isGroup: true, groupLayout: "vertical", isVirtual: true},
+                { key: "store-front", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "frontend"},
+                { key: "store-admin", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "frontend"},
+                { key: "order-service", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "virtualgroup1"},
+                { key: "product-service", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "virtualgroup1"},
+                { key: "makeline-service", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "virtualgroup1"},
+                { key: "ai-service", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "virtualgroup1"},
+                { key: "order-queue", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "virtualgroup2"},
+                { key: "order-database", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "database"},
+                { key: "chat-completion", color: "lightblue", icon: iconBaseUrl + "/devops/orchestration/kubernetes/pod.svg", group: "virtualgroup2"},
 
                 // Common Resources
-                { key: "ACR", color: "lightblue", icon: iconBaseUrl + "/containerregistry.svg", group: "Azure"},
-                { key: "Keyvault", color: "lightblue", icon: iconBaseUrl + "/keyvault.svg", group: "Azure"},
-                { key: "Log Analytics Workspaces", color: "lightblue", icon: iconBaseUrl + "/loganalyticsworkspaces.svg", group: "Azure"},
+                { key: "ACR", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/containers/containerregistry.svg", group: "Endpoints"},
+                { key: "Keyvault", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/security/keyvault.svg", group: "Endpoints"},
+                { key: "Log Analytics Workspaces", color: "lightblue", icon: iconBaseUrl + "/cloud/azure/storage/loganalyticsworkspaces.svg", group: "Endpoints"},
                 // CICD 
-                { key: "CICD", color: "lightblue", icon: iconBaseUrl + "/devops.svg", isGroup: true},
-                { key: "Gitlab", color: "lightblue", icon: iconBaseUrl + "/gitlab.svg", group: "CICD"},
-                { key: "Terraform", color: "lightblue", icon: iconBaseUrl + "/terraform.svg", group: "CICD"},
-                { key: "Python", color: "lightblue", icon: iconBaseUrl + "/python.svg", group: "CICD"},
+                { key: "CICD", color: "lightblue", icon: iconBaseUrl + "/devops/devops.svg", isGroup: true},
+                { key: "GitHub Actions", color: "lightblue", icon: iconBaseUrl + "/devops/cicd/githubactions-18.svg", group: "CICD"},
+                { key: "Terraform", color: "lightblue", icon: iconBaseUrl + "/devops/iac/terraform-18.svg", group: "CICD"},
+                { key: "Python", color: "lightblue", icon: iconBaseUrl + "/programming/python.svg", group: "CICD"},
             ];
             
             // Data Links
@@ -69,13 +76,24 @@
                 { to: "AKS Single", from: "Keyvault"},
                 { to: "AKS Shared", from: "Keyvault"},
                 { to: "CICD", from: "DevOps"},
-                { to: "COPS VM", from: "Onboarding Team"}
+                { to: "User", from: "Onboarding Team"},
+                { to: "order-service", from: "store-front", arrowColor: "red" },
+                { to: "product-service", from: "store-front", arrowColor: "red"},
+                { to: "product-service", from: "store-admin", arrowColor: "blue"},
+                { to: "makeline-service", from: "store-admin", arrowColor: "blue"},
+                { to: "ai-service", from: "store-admin", arrowColor: "black"},
+                { to: "order-queue", from: "order-service", arrowColor: "gray"},
+                { to: "order-queue", from: "makeline-service"},
+                { to: "order-database", from: "makeline-service"},
+                { to: "chat-completion", from: "ai-service"}
 
             ];
+            
             myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
-    
+            
+            // Node Template
             myDiagram.nodeTemplate = $(go.Node, "Vertical",
-                { locationSpot: go.Spot.Center },
+                { locationSpot: go.Spot.Center, locationObjectName: "SHAPE" },
                 $(go.Panel, "Auto",
                     $(go.Shape, "RoundedRectangle",
                         { fill: "white" },
@@ -89,47 +107,63 @@
                     new go.Binding("text", "key"))
             );
 
-            myDiagram.groupTemplate = 
-            $(go.Group, "Auto",
-                { 
-                    layout: $(go.TreeLayout, { angle: 0, arrangement: go.TreeLayout.ArrangementHorizontal, isRealtime: true }),
-                    isSubGraphExpanded: true,
-                    subGraphExpandedChanged: group => {
-                        if (group.memberParts.count === 0) {
-                            randomGroup(group.data.key);
-                        }
-                    }
-                },
-                $(go.Shape, "Rectangle",
-                    
-                    { fill: "white", stroke: "gray", strokeWidth: 2 }
-                ),
-                $(go.Panel, "Vertical",
-                    $(go.Picture,
-                        { margin: 10, width: 50, height: 50 },
-                        new go.Binding("source", "icon")),
-                    // { defaultAlignment: go.Spot.Top, margin: 4 },
+            myDiagram.groupTemplate =
+                $(go.Group, "Auto",
+                    {
+                        layout: $(go.GridLayout), // Default layout, overridden dynamically
+                    },
+                    new go.Binding("layout", "groupLayout", layoutType), // Bind to groupLayout
+                    $(go.Shape, "RoundedRectangle", { fill: "white", stroke: "gray", strokeWidth: 2 }),
                     $(go.Panel, "Vertical",
-                        //{ defaultAlignment: go.Spot.Top },
-                        $(go.TextBlock,
-                            { alignment: go.Spot.Top, margin: 5 },
-                            new go.Binding("text", "key")),
-                            $(go.Panel, "Vertical",
-                                { defaultAlignment: go.Spot.Top },
-                                $("SubGraphExpanderButton"),
-                                $(go.Placeholder,
-                                    { padding: 10 })
-                            )
+                    $(go.Picture, { margin: 10, width: 50, height: 50 }, new go.Binding("source", "icon")),
+                    $(go.TextBlock, { alignment: go.Spot.Top, margin: 5 }, new go.Binding("text", "key")),
+                    $(go.Panel, "Vertical",
+                        { defaultAlignment: go.Spot.Top },
+                        $("SubGraphExpanderButton"),
+                        $(go.Placeholder, { padding: 10 })
                     )
-                )
-            );
-    
+                    )
+                );
+
+                // Helper function for layout type
+                function layoutType(groupLayout) {
+                if (groupLayout === "vertical") {
+                    return $(go.GridLayout, { wrappingColumn: 1, alignment: go.GridLayout.Position });
+                } else if (groupLayout === "horizontal") {
+                    return $(go.GridLayout, { wrappingRow: 1, alignment: go.GridLayout.Position });
+                } else {
+                    return $(go.TreeLayout, { angle: 0, arrangement: go.TreeLayout.ArrangementHorizontal });
+                }
+                }
+
+                // Specific Template for Virtual Groups
+                myDiagram.groupTemplateMap.add("virtual",
+                    $(go.Group, "Auto", // Auto layout for flexibility
+                      {
+                        selectable: false,                     // Cannot select virtual groups
+                        isSubGraphExpanded: false,             // Always collapsed
+                        subGraphExpandedChanged: () => {},     // Prevent expand/collapse
+                        visible: false                         // Hide the group completely
+                      },
+                      // Virtual group is invisible, so no visual elements are included
+                      $(go.Placeholder) // Placeholder for child nodes, layout only
+                    )
+                  );
+                  
+
             myDiagram.linkTemplate = 
                 $(go.Link,
+                    {
+                    routing: go.Link.Orthogonal, // Use orthogonal routing for split arrows
+                    corner: 10 // Set the corner radius for the bends
+                    },
                     $(go.Shape,
-                        { stroke: "black" }),
-                    $(go.Shape, { toArrow: "Standard", stroke: null },
-                        new go.Binding("fill", "color")
+                    { strokeWidth: 2 }, // Set the stroke width
+                    new go.Binding("stroke", "arrowColor") // Bind the stroke property to the arrowColor data property
+                    ),
+                    $(go.Shape, 
+                    { toArrow: "Standard", stroke: null },
+                    new go.Binding("fill", "arrowColor") // Bind the fill property to the arrowColor data property
                     )
                 );
         }

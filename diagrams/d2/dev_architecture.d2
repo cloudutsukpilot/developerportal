@@ -1,0 +1,64 @@
+explain: |md
+  High Level Overview
+| {
+  near: top-center
+}
+
+User: {
+  link: layers.user
+}
+
+Application Gatway: {
+    icon: https://icons.terrastruct.com/azure%2FNetworking%20Service%20Color%2FApplication%20Gateway.svg
+    link: layers.user
+  }
+
+layers: {
+  user: {
+    explain: |md
+      Users and Administrattor:
+
+      User : General Users
+      Administrator : Admins
+    | {
+      near: top-center
+    }
+    User <-> Hong Kong data center
+    Virginia data center.link: layers.virginia
+    Hong Kong data center.link: layers.hongkong
+    
+    layers: {
+      virginia: {
+        direction: right
+        explain: |md
+          Getting deeper into details:
+
+          TikTok's CEO explains that Virginia data center has strict security measures.
+        | {
+          near: top-center
+        }
+        Oracle Databases: {
+          shape: cylinder
+          style.multiple: true
+        }
+        US residents -> Oracle Databases: access
+        US residents: {
+          shape: person
+        }
+        Third party auditors -> Oracle Databases: verify
+      }
+      hongkong: {
+        direction: right
+        explain: |md
+          TikTok's CEO says data is actively being deleted and should be done by the end of the year.
+        | {
+          near: top-center
+        }
+        Legacy Databases: {
+          shape: cylinder
+          style.multiple: true
+        }
+      }
+    }
+  }
+}

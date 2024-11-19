@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  d2_dev_apply:
+    desc: Apply the d2 configuration
+    cmds:
+      - d2 -w dev_architecture.d2 dev_architecture.svg
+      
+  d2_docker_run_dev:
+    desc: Run the d2 container
+    cmds:
+      - docker run --rm -it -u "$(id -u):$(id -g)" -v "$PWD:/data"   -p 127.0.0.1:8080:8080 terrastruct/d2 --watch /data/dev_architecture.d2

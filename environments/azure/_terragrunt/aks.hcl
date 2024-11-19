@@ -90,10 +90,14 @@ inputs = {
     aad_azure_rbac_enabled            = cluster.aad.azure_rbac_enabled
     aad_admin_group_object_ids = [
       for group_name in cluster.aad.group_names :
-      substr(lookup(dependency.aad_group.outputs.aad_group_outputs, group_name, { id = null }).id, 8, length(lookup(dependency.aad_group.outputs.aad_group_outputs, group_name, { id = null }).id) - 8)
+      contains(keys(dependency.aad_group.outputs.aad_group_outputs), group_name) ?
+      substr(
+        dependency.aad_group.outputs.aad_group_outputs[group_name].id,
+        8,
+        length(dependency.aad_group.outputs.aad_group_outputs[group_name].id) - 8
+      )
+      : null
     ]
-
-
     }
   }
 }
