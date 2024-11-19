@@ -1,62 +1,158 @@
+direction: right
+
 explain: |md
   High Level Overview
 | {
   near: top-center
 }
 
-User: {
+user: Users
+devops: DevOps Team
+azure: Azure
+
+cicd: {
+  gh: GitHub Actions
+
+  gh: {
+    shape: image
+    icon: https://icons.terrastruct.com/dev%2Fgithub.svg
+    link: layers.gh
+  }
+}
+
+user -> azure.appgw: access
+azure: {
+  appgw: Application Gateway
+  aks: Azure Kubernetes Service
+  db: Database
+
+  appgw: {
+    shape: image
+    icon: https://icons.terrastruct.com/azure%2FNetworking%20Service%20Color%2FApplication%20Gateway.svg
+    link: layers.appgw
+  }
+
+  aks: {
+    shape: image
+    icon: https://icons.terrastruct.com/azure%2FContainer%20Service%20Color%2FKubernetes%20Services.svg
+    link: layers.aks
+  }
+
+  db: {
+    shape: image
+    icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FAzure%20Database%20%28Generic%29.svg
+    link: layers.db
+  }
+
+  appgw -> aks: access
+  aks -> db: access
+}
+
+azure: {
+  icon: https://cloudutsuk.com/assets/img/icons/cloud/azure/microsoft-azure-18.svg
+  link: layers.azure
+}
+
+devops -> cicd: access
+cicd -> azure: deploy
+
+user: {
+  shape: image
+  icon: https://icons.terrastruct.com/essentials%2F359-users.svg
   link: layers.user
 }
 
-Application Gatway: {
-    icon: https://icons.terrastruct.com/azure%2FNetworking%20Service%20Color%2FApplication%20Gateway.svg
-    link: layers.user
-  }
+devops: {
+  shape: image
+  icon: https://icons.terrastruct.com/essentials%2F365-user.svg
+  link: layers.user
+}
+
+cicd: {
+  icon: https://icons.terrastruct.com/essentials%2F102-infinity.svg
+  link: layers.cicd
+}
 
 layers: {
   user: {
     explain: |md
-      Users and Administrattor:
+      Users and Administrator:
 
       User : General Users
       Administrator : Admins
     | {
       near: top-center
     }
-    User <-> Hong Kong data center
-    Virginia data center.link: layers.virginia
-    Hong Kong data center.link: layers.hongkong
-    
-    layers: {
-      virginia: {
-        direction: right
-        explain: |md
-          Getting deeper into details:
+    User <-> User RBAC
+    User <-> Admin RBAC
+  }
+  # Virginia data center.link: layers.virginia
+  # Hong Kong data center.link: layers.hongkong
+  appgw: {
+    explain: |md
+      Configuration:
 
-          TikTok's CEO explains that Virginia data center has strict security measures.
-        | {
-          near: top-center
-        }
-        Oracle Databases: {
-          shape: cylinder
-          style.multiple: true
-        }
-        US residents -> Oracle Databases: access
-        US residents: {
-          shape: person
-        }
-        Third party auditors -> Oracle Databases: verify
+      Frontend : Incoming traffic
+      Backend Pools : Backend services
+    | {
+      near: top-center
+    }
+  }
+
+  aks: {
+    explain: |md
+      Node Pools:
+
+      + System Node Pool : System Pods
+      + User Node Pool : User Pods
+    | {
+      near: top-center
+    }
+    direction: right
+    snp: System Node Pool
+    unp: User Node Pool
+
+    snp.link: layers.system
+    unp.link: layers.user
+
+    snp: {
+      icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM%20Scale%20Sets.svg
+      System Node/VM
+      System Node/VM: {
+        icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM.svg
       }
-      hongkong: {
-        direction: right
+    }
+
+    unp: {
+      icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM%20Scale%20Sets.svg
+      User Node VM-1
+      User Node VM-2
+
+      User Node VM-1: {
+        icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM.svg
+      }
+      User Node VM-2: {
+        icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM.svg
+      }
+    }
+
+    layers: {
+      system: {
         explain: |md
-          TikTok's CEO says data is actively being deleted and should be done by the end of the year.
+          System Node Pool:
+
+          System Node Pool : General Users
         | {
           near: top-center
         }
-        Legacy Databases: {
-          shape: cylinder
-          style.multiple: true
+      }
+      user: {
+        explain: |md
+          User Node Pool:
+
+          User Node Pool : Admins
+        | {
+          near: top-center
         }
       }
     }

@@ -1,10 +1,15 @@
 version: '3'
 
 tasks:
-  d2_dev_apply:
-    desc: Apply the d2 configuration
+  d2_dev_arch:
+    desc: Apply the d2 configuration for Dev Architecture (Layered)
     cmds:
-      - d2 -w dev_architecture.d2 dev_architecture.svg
+      - d2 --layout elk -w dev_architecture.d2 dev_architecture.svg
+  
+  d2_dev_arch_final:
+    desc: Apply the d2 configuration for Dev Architecture (Final)
+    cmds:
+      - d2 --layout elk -w dev_architecture_final.d2 dev_architecture_final.svg
       
   d2_docker_run_dev:
     desc: Run the d2 container

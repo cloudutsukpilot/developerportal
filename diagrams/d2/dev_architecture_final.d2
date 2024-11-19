@@ -1,0 +1,238 @@
+direction: right
+
+explain: |md
+  High Level Overview
+| {
+  near: top-center
+}
+
+user: Users
+employees: Employees
+devops: DevOps Team
+azure: Azure
+
+cicd: {
+  gh: GitHub Actions
+
+  gh: {
+    shape: image
+    icon: https://icons.terrastruct.com/dev%2Fgithub.svg
+  }
+}
+
+azure: {
+  icon: https://cloudutsuk.com/assets/img/icons/cloud/azure/microsoft-azure-18.svg
+  direction: right
+
+  commonvnet: Common Virtual Network
+
+  commonvnet: {
+    icon: https://icons.terrastruct.com/azure%2FNetworking%20Service%20Color%2FVirtual%20Networks.svg
+    style.opacity: 1
+    style.stroke-dash: 5
+    style.stroke: "#167c3c"
+
+    bastion: Bastion Host
+
+    bastion: {
+      icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM%20%28Classic%29.svg
+    }
+
+    endpoints: {
+      icon: https://icons.terrastruct.com/gcp%2FProducts%20and%20services%2FAPI%20Management%2FCloud%20Endpoints.svg
+  
+      acr: Container Registry
+      kv: Keyvault
+      law: Log Analytics Workspace
+  
+      acr: {
+        shape: image
+        icon: https://icons.terrastruct.com/gcp%2FProducts%20and%20services%2FDeveloper%20Tools%2FContainer%20Registry.svg
+      }
+  
+      kv: {
+        shape: image
+        icon: https://icons.terrastruct.com/azure%2FSecurity%20Service%20Color%2FKey%20Vaults.svg
+      }
+  
+      law: {
+        shape: image
+        icon: https://icons.terrastruct.com/azure%2FAnalytics%20Service%20Color%2FLog%20Analytics%20Workspaces.svg
+      }
+    }
+
+  }
+  
+
+  bastion: {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM%20%28Classic%29.svg
+  }
+
+  aksvnet: Virtual Network (10.1.0.0/16)
+  
+  aksvnet: {
+    icon: https://icons.terrastruct.com/azure%2FNetworking%20Service%20Color%2FVirtual%20Networks.svg
+    style.opacity: 1
+    style.stroke-dash: 5
+    style.stroke: "#167c3c"
+    
+    aks: Azure Kubernetes Service
+    db: Database
+
+    appgw-subnet: {
+      icon: https://icons.terrastruct.com/azure%2FNetworking%20Service%20Color%2FVirtual%20Network%20%28Classic%29.svg
+      appgw: Application Gateway
+      style.opacity: 1
+      style.stroke-dash: 5
+      style.stroke: "#167c3c"
+      
+      appgw: {
+        shape: image
+        icon: https://icons.terrastruct.com/azure%2FNetworking%20Service%20Color%2FApplication%20Gateway.svg
+      } 
+    }
+
+    aks: {
+      direction: right
+      icon: https://icons.terrastruct.com/azure%2FContainer%20Service%20Color%2FKubernetes%20Services.svg
+
+      direction: right
+      snp-subnet: System Node Pool Subnet(10.1.64.0/26)
+      unp-subnet: User Node Pool Subnet(10.1.128.0/18)
+           
+      snp-subnet: {
+        icon: https://icons.terrastruct.com/azure%2FNetworking%20Service%20Color%2FVirtual%20Network%20%28Classic%29.svg
+        style.opacity: 1
+        style.stroke-dash: 5
+        style.stroke: "#167c3c"
+        snp: System Node Pool
+        snp: {
+          icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM%20Scale%20Sets.svg
+          
+          System Node/VM
+          System Node/VM: {
+            icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM.svg
+            kubedns: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+            kube-proxy: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+            kubelet: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+          }
+        }
+      }
+      unp-subnet: {
+        icon: https://icons.terrastruct.com/azure%2FNetworking%20Service%20Color%2FVirtual%20Network%20%28Classic%29.svg
+        style.opacity: 1
+        style.stroke-dash: 5
+        style.stroke: "#167c3c"
+        unp: User Node Pool
+        unp: {
+          icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM%20Scale%20Sets.svg
+          unv1: User Node VM-1
+          unv2: User Node VM-2
+
+          unv1: {
+            direction: right
+            icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM.svg
+            store-front: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+            store-admin: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+          }
+          unv2: {
+            direction: right
+            icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FVM%2FVM.svg
+            order-service: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+            product-service: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+            makeline-service: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+            ai-service: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+            chat-completion: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+            order-queue: {
+              icon: https://cloudutsuk.com/assets/img/icons/devops/orchestration/kubernetes/pod.svg
+            }
+          }
+        }
+      }
+    }
+
+    db: {
+      direction: right
+      shape: image
+      icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FAzure%20Database%20%28Generic%29.svg
+    }
+  }
+}
+
+entraid: {
+  icon: https://icons.terrastruct.com/azure%2FIdentity%20Service%20Color%2FActive%20Directory.svg
+}
+
+user -> azure.aksvnet.appgw-subnet.appgw: access: {
+  style.animated: true
+  source-arrowhead: https
+  target-arrowhead: 443
+}
+employees -> azure.aksvnet.appgw-subnet.appgw: access: {
+  style.animated: true
+  source-arrowhead: https
+  target-arrowhead: 443
+}
+devops -> cicd: access {
+  style.animated: true
+  target-arrowhead: https
+}
+devops -> azure.commonvnet.bastion: access: {
+  style.animated: true
+  target-arrowhead: ssh
+}
+cicd -> azure: deploy: {
+  style.animated: true
+  target-arrowhead: api
+}
+azure.aksvnet.appgw-subnet.appgw -> azure.aksvnet.aks: access: {style.animated: true}
+azure.aksvnet.aks.unp-subnet.unp.unv1.store-front -> azure.aksvnet.aks.unp-subnet.unp.unv2.order-service: api: {style.animated: true}
+azure.aksvnet.aks.unp-subnet.unp.unv1.store-front -> azure.aksvnet.aks.unp-subnet.unp.unv2.product-service: api: {style.animated: true}
+azure.aksvnet.aks.unp-subnet.unp.unv1.store-admin -> azure.aksvnet.aks.unp-subnet.unp.unv2.product-service: api: {style.animated: true}
+azure.aksvnet.aks.unp-subnet.unp.unv1.store-admin -> azure.aksvnet.aks.unp-subnet.unp.unv2.makeline-service: api: {style.animated: true}
+azure.aksvnet.aks.unp-subnet.unp.unv1.store-admin -> azure.aksvnet.aks.unp-subnet.unp.unv2.ai-service: api: {style.animated: true}
+azure.aksvnet.aks.unp-subnet.unp.unv2.makeline-service -> azure.aksvnet.aks.unp-subnet.unp.unv2.order-queue: {style.animated: true}
+azure.aksvnet.aks.unp-subnet.unp.unv2.makeline-service -> azure.aksvnet.db: {style.animated: true}
+azure.aksvnet.aks.unp-subnet.unp.unv2.ai-service -> azure.aksvnet.aks.unp-subnet.unp.unv2.chat-completion: {style.animated: true}
+azure.aksvnet.aks -> azure.commonvnet.endpoints: {style.animated: true}
+azure.aksvnet.aks -> entraid: {style.animated: true}
+azure.aksvnet -- azure.commonvnet: Network Peering: {style.animated: true}
+
+user: {
+  shape: image
+  icon: https://icons.terrastruct.com/essentials%2F359-users.svg
+}
+
+employees: {
+  shape: image
+  icon: https://icons.terrastruct.com/essentials%2F359-users.svg
+}
+
+devops: {
+  shape: image
+  icon: https://icons.terrastruct.com/essentials%2F365-user.svg
+}
+
+cicd: {
+  icon: https://icons.terrastruct.com/essentials%2F102-infinity.svg
+}
