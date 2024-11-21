@@ -4,6 +4,7 @@
 # .tfstate files
 *.tfstate
 *.tfstate.*
+**/.terraform.lock.hcl
 
 # Crash log files
 crash.log
@@ -70,8 +71,6 @@ log/*
 *.log
 
 .vscode/
-.terraform.lock.hcl
-
 .decrypted*
 env_variables
 
@@ -82,6 +81,7 @@ env_variables
 **/scrap
 **/.infracost
 
+# Terragrunt
 **/provider.tf
 **/backend.tf
 **/.terraform

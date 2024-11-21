@@ -45,14 +45,14 @@ tasks:
   init-all:
     desc: Initialize the project
     cmds:
-      - terragrunt run-all init --reconfigure
+      - terragrunt run-all init --reconfigure --terragrunt-non-interactive
 
   plan-all:
     desc: Plan the infrastructure
     cmds:
       - |
-        terragrunt run-all init --reconfigure
-        terragrunt run-all plan
+        terragrunt run-all init --reconfigure --terragrunt-non-interactive
+        terragrunt run-all plan --terragrunt-non-interactive
 
   apply-all:
     desc: Apply the infrastructure
@@ -102,8 +102,8 @@ tasks:
     desc: Validate the infrastructure
     cmds:
       - |
-        terragrunt run-all init --reconfigure
-        terragrunt run-all validate
+        terragrunt run-all init --reconfigure --terragrunt-non-interactive
+        terragrunt run-all validate 
 
   output-all:
     desc: Output the infrastructure

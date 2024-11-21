@@ -14,6 +14,13 @@ dependency "resource_group" {
   config_path                             = "${get_terragrunt_dir()}/../resource_group"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "apply", "destroy", "output"]
   skip_outputs                            = true
+  mock_outputs = {
+    resource_group_output = {
+      "dummy-rg" = {
+        name = "dummy-rg"
+      }
+    }
+  }
 }
 
 dependency "virtual_network" {

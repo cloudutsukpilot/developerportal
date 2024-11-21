@@ -1,7 +1,7 @@
 terraform {
   before_hook "tflint" {
     commands = ["init", "plan"]
-    execute  = ["echo"]
+    execute  = ["cmd", "/c", "echo", "Running tflint"]
   }
 }
 
