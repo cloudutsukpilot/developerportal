@@ -84,3 +84,4 @@ env_variables
 
 **/provider.tf
 **/backend.tf
+**/.terraform
