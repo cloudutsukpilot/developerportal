@@ -1,0 +1,137 @@
+name: 'Deploy Pre-Req Azure Infrastructure'
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - .github/workflows/pre-reqs-infra-deploy.yaml
+      - environments/azure/pre-req/resources/**
+  pull_request:
+    branches: [ main ]
+    paths: 
+      - .github/workflows/pre-reqs-infra-deploy.yaml
+      - environments/azure/pre-req/resources/**
+  # Allows you to run this workflow manually from the Actions tab 
+  workflow_dispatch:
+    
+  
+env:
+  STORAGE_ACCOUNT_NAME: cloudutsuktfstatestgacc
+  RESOURCE_GROUP_NAME: terraform-backend
+  RESOURCE_GROUP_LOCATION: centralindia
+  CONTAINER_NAME: terraform-state
+  TERRAGRUNT_VERSION: 0.68.4
+  TERRAFORM_VERSION: v1.9.8
+  AZURE_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  AZURE_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  AZURE_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  ENV: ${{ github.event.inputs.ENV || 'dev' }}
+  
+jobs:
+  deploy-pre-req-azure-infra:
+    name: Initialize Pre-Req Azure Infrastructure
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.ENV || 'dev' }}
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: environments/azure/pre-req/resources
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Repository Checkout
+      uses: actions/checkout@v2
+
+    - name: Azure CLI Login
+      uses: azure/login@v2
+      with:
+        creds: '{"clientId":"${{ env.AZURE_CLIENT_ID }}","clientSecret":"${{ env.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ env.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ env.AZURE_TENANT_ID }}"}'
+
+    - name: Create Azure Storage Account for Terraform Backend
+      run: |
+        az account set --subscription "$ARM_SUBSCRIPTION_ID"
+        subscriptionName=$(az account show --query name -o tsv)
+        echo "Subscription is set to: $subscriptionName"
+        # Create resource group
+        if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]]; then
+          az group create --name $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION \
+          --only-show-errors
+          echo "Resource group $RESOURCE_GROUP_NAME created."
+        else
+          echo "Resource group $RESOURCE_GROUP_NAME already exists."
+        fi
+        
+        # Create storage account
+        if [[ $(az storage account check-name --name $STORAGE_ACCOUNT_NAME --query 'nameAvailable') == true ]]; then
+          az storage account create --name $STORAGE_ACCOUNT_NAME \
+              --resource-group $RESOURCE_GROUP_NAME \
+              --sku Standard_LRS \
+              --encryption-services blob \
+              --only-show-errors
+          echo "Storage account $STORAGE_ACCOUNT_NAME created."
+        else
+          echo "Storage account $STORAGE_ACCOUNT_NAME already exists."
+        fi
+        
+        # Create blob container
+        if [[ $(az storage container exists --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login --query 'exists') == false ]]; then
+          az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --auth-mode login \
+          --only-show-errors
+          echo "Blob container $CONTAINER_NAME created."
+        else
+          echo "Blob container $CONTAINER_NAME already exists."
+        fi
+      env:
+        ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
+    
+    # Install the latest version of Terraform CLI
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: $TERRAFORM_VERSION
+
+    # Install Terragrunt
+    - name: Install Terragrunt
+      run: |
+        wget -q https://github.com/gruntwork-io/terragrunt/releases/download/v$TERRAGRUNT_VERSION/terragrunt_linux_amd64
+        chmod +x terragrunt_linux_amd64
+        sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: Pre-Req - Terragrunt Format
+      id: pre-req-format
+      run: terragrunt hclfmt 
+      continue-on-error: true
+
+    # Initialize the Terragrunt working directory
+    - name: Pre-Req - Terragrunt Init
+      id: pre-req-init
+      env:
+        ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
+      run: terragrunt run-all init --terragrunt-non-interactive
+
+    # Plan the changes to the infrastructure
+    - name: Pre-Req - Terragrunt Plan
+      id: pre-req-plan
+      env:
+        ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
+      run: terragrunt run-all plan
+
+    # Apply the changes to the infrastructure
+    - name: Pre-Req - Terragrunt Apply
+      id: pre-req-apply
+      env:
+        ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+        ARM_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
+      run: terragrunt run-all apply -auto-approve --terragrunt-non-interactive

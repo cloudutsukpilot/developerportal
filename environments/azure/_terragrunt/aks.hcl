@@ -42,7 +42,7 @@ dependency "subnet" {
 }
 
 dependency "aad_group" {
-  config_path                             = "${get_terragrunt_dir()}/../../../entraid/resources/group"
+  config_path                             = "${get_terragrunt_dir()}/../../../pre-reqs/resources/group"
   mock_outputs_allowed_terraform_commands = ["init", "validate", "plan", "apply", "destroy", "output"]
   mock_outputs = {
     aad_group_outputs = {
@@ -95,16 +95,18 @@ inputs = {
 
     role_based_access_control_enabled = cluster.aad.role_based_access_control_enabled
     aad_azure_rbac_enabled            = cluster.aad.azure_rbac_enabled
-    aad_admin_group_object_ids = [
-      for group_name in cluster.aad.group_names :
-      contains(keys(dependency.aad_group.outputs.aad_group_outputs), group_name) ?
-      substr(
-        dependency.aad_group.outputs.aad_group_outputs[group_name].id,
-        8,
-        length(dependency.aad_group.outputs.aad_group_outputs[group_name].id) - 8
-      )
-      : null
-    ]
+    aad_admin_group_object_ids = compact(flatten(
+      cluster.aad.azure_rbac_enabled ? [
+        for group_name in cluster.aad.group_names :
+        contains(keys(dependency.aad_group.outputs.aad_group_outputs), group_name) ?
+        substr(
+          dependency.aad_group.outputs.aad_group_outputs[group_name].id,
+          8,
+          length(dependency.aad_group.outputs.aad_group_outputs[group_name].id) - 8
+        )
+        : null
+      ] : []
+    ))
     }
   }
 }

@@ -31,3 +31,8 @@ aad_groups:
     members:
       - "c968e4fb-2328-4e7b-90c5-9f9aa06fe3f3"
     security_enabled: true
+dns_zones:
+  - name: cloudutsuk.com
+    resource_group_name: dev-rg-domain-rg-01
+    resource_tags:
+      resource_type: dnszone
