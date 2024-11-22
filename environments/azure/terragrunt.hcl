@@ -42,10 +42,3 @@ terraform {
 }
 EOF
 }
-
-terraform {
-  before_hook "tflint" {
-    commands = ["init", "plan"]
-    execute  = ["echo", "Running tflint"]
-  }
-}
