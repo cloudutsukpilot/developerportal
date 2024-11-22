@@ -38,7 +38,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: environments/azure/pre-req/resources
+        working-directory: environments/azure/pre-reqs/resources
 
     steps:
     # Checkout the repository to the GitHub Actions runner
