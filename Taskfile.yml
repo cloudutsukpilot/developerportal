@@ -29,7 +29,7 @@ tasks:
   ga-create-infra:
     desc: Run the pipeline
     cmds:
-      - act -j initialize-azure-infra --pull=false --action-offline-mode
+      - act -j deploy-azure-infrastructure --pull=false --action-offline-mode
 
   ga-destroy-infra:
     desc: Run the pipeline
