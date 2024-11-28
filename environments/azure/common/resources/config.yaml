@@ -2,7 +2,7 @@ resource_groups:
   - name: dev-rg-common-01
     location: centralindia
     resource_tags: 
-      Application: Backstage
+      resource_type: rg
 virtual_networks:
   - name: dev-vnet-common-hub-01
     address_space: 
@@ -10,7 +10,7 @@ virtual_networks:
     location: centralindia
     resource_group_name: dev-rg-common-01
     resource_tags:
-      Application: Backstage
+      resource_type: vnet
 subnets:
   - name: azfw-subnet
     resource_group_name: dev-rg-common-01
@@ -44,7 +44,7 @@ loganalyticsworkspaces:
     sku: PerGB2018
     retention_in_days: 30
     resource_tags:
-      Application: Backstage
+      resource_type: law
 role_assignments:
   - name: common-ra-apurva-rg
     resource_groups: 
