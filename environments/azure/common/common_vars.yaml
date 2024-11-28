@@ -1,6 +1,6 @@
 common_tags:
-  cost-center: VS
-  subscription: development
-  technical-owner: cloudutsuk
-  application: backstage
-  env: common
+  # cost-center: VS
+  # subscription: development
+  # technical-owner: cloudutsuk
+  # application: backstage
+  # env: common
