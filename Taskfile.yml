@@ -24,7 +24,8 @@ tasks:
       - git status
       - git add .
       - git commit -m "{{.CLI_ARGS}}"
-      - git push    
+      - git push  
+      - git push gitlab main  
     
   ga-create-infra:
     desc: Run the pipeline
