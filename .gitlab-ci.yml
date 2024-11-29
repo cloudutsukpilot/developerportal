@@ -1,0 +1,68 @@
+image: ruby:3.1
+
+stages:
+  - deploy
+
+variables:
+  TERRAGRUNT_VERSION: "0.69.2" # Update to your required Terragrunt version
+  TERRAFORM_VERSION: 1.9.8
+
+before_script:
+    # Update packages and install dependencies
+    - | 
+      apt-get update && apt-get install -y curl unzip bash apt-transport-https ca-certificates gnupg lsb-release
+
+    # Install Azure CLI
+    - | 
+      curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+      echo "Installed Azure CLI:"
+      az version
+    
+    # Install Terraform
+    - |
+      if [ ! -f /usr/local/bin/terraform ]; then
+        if curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip; then
+          echo "Downloaded Terraform ${TERRAFORM_VERSION}"
+          unzip terraform.zip -d /usr/local/bin/
+          rm terraform.zip
+        else
+          echo "Error: Terraform version ${TERRAFORM_VERSION} not found." && exit 1
+        fi
+      else
+        echo "Terraform already installed."
+      fi
+    
+    # Install Terragrunt
+    - |
+      if [ ! -f /usr/local/bin/terragrunt ]; then
+        if curl -L https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64 -o /usr/local/bin/terragrunt; then
+          echo "Downloaded Terragrunt ${TERRAGRUNT_VERSION}"
+          chmod +x /usr/local/bin/terragrunt
+        else
+          echo "Error: Terragrunt version ${TERRAGRUNT_VERSION} not found." && exit 1
+        fi
+      else
+        echo "Terragrunt already installed."
+      fi
+       
+    # Set Azure environment variables for Terraform
+    - | 
+      export ARM_CLIENT_ID=${ARM_CLIENT_ID}
+      export ARM_CLIENT_SECRET=${ARM_CLIENT_SECRET}
+      export ARM_TENANT_ID=${ARM_TENANT_ID}
+      export ARM_SUBSCRIPTION_ID=${ARM_SUBSCRIPTION_ID}
+
+deploy:
+  stage: deploy
+  script:
+    # Format the Terraform code (Optional)
+    - terragrunt hclfmt
+
+    # Run Terragrunt Init
+    - terragrunt run-all init
+
+    # Run Terragrunt Plan
+    - terragrunt run-all plan 
+
+    # Apply the changes to the infrastructure
+    - terragrunt run-all apply -auto-approve --terragrunt-non-interactive 
