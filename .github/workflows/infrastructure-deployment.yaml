@@ -159,15 +159,15 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
       run: terragrunt run-all init --terragrunt-non-interactive
 
-    # Plan the changes to the infrastructure
-    - name: Env - Terragrunt Plan
-      id: env-plan
-      env:
-        ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
-        ARM_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
-      run: terragrunt run-all plan
+    # # Plan the changes to the infrastructure
+    # - name: Env - Terragrunt Plan
+    #   id: env-plan
+    #   env:
+    #     ARM_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+    #     ARM_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+    #     ARM_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+    #     ARM_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
+    #   run: terragrunt run-all plan
 
     # Apply the changes to the infrastructure
     - name: Env - Terragrunt Apply
