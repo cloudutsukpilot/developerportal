@@ -1,3 +1,4 @@
-locals {
+inputs = {
+  platform     = "azure"
   subscription = "vscode"
 }
