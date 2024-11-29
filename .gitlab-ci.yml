@@ -45,21 +45,18 @@ before_script:
         echo "Terragrunt already installed."
       fi
        
-    # Set Azure environment variables for Terraform
-    - | 
-      export ARM_CLIENT_ID=${ARM_CLIENT_ID}
-      export ARM_CLIENT_SECRET=${ARM_CLIENT_SECRET}
-      export ARM_TENANT_ID=${ARM_TENANT_ID}
-      export ARM_SUBSCRIPTION_ID=${ARM_SUBSCRIPTION_ID}
-
 deploy:
   stage: deploy
   script:
     # Format the Terraform code (Optional)
     - terragrunt hclfmt
 
-    # Az Login
-    - az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_SECRET --tenant $AZURE_TENANT
+    # Set Azure environment variables for Terraform
+    - | 
+      export ARM_CLIENT_ID=${ARM_CLIENT_ID}
+      export ARM_CLIENT_SECRET=${ARM_CLIENT_SECRET}
+      export ARM_TENANT_ID=${ARM_TENANT_ID}
+      export ARM_SUBSCRIPTION_ID=${ARM_SUBSCRIPTION_ID}
 
     # Run Terragrunt Init
     - terragrunt run-all init
